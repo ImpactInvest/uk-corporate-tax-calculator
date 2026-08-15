@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body{margin:0;background:#efeee9;font-family:'Instrument Sans',system-ui,sans-serif;color:#14161a;-webkit-font-smoothing:antialiased}
+  a{color:#0d6b5e;text-decoration:none}a:hover{text-decoration:underline;text-underline-offset:3px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:22px;background:transparent;cursor:pointer;margin:0}
+  input[type=range]::-webkit-slider-runnable-track{height:3px;background:#dcdad3;border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:-5.5px;border-radius:50%;background:#14161a;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.28)}
+  input[type=range]:focus-visible{outline:none}
+  input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 4px rgba(13,107,94,.28)}
+  input[type=number]{font-family:'IBM Plex Mono',monospace}
+  ::selection{background:#cfe6e0}
+</style>
+</helmet>
+<div style="min-width:1400px;padding:22px 26px 40px">
+
+  <header style="display:flex;flex-direction:column;gap:14px;padding-bottom:0;border-bottom:1px solid #dcdad3;margin-bottom:18px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:28px">
+      <div style="display:flex;align-items:baseline;gap:14px">
+        <div style="display:flex;align-items:center;gap:9px">
+          <div style="width:22px;height:22px;border-radius:5px;background:#14161a;display:flex;align-items:center;justify-content:center;color:#f6f5f2;font-size:11px;font-weight:600;letter-spacing:.02em">&pound;</div>
+          <h1 style="margin:0;font-size:19px;font-weight:600;letter-spacing:-.015em">UK Company Tax Calculator</h1>
+        </div>
+        <span style="font-size:13px;color:#767c86">Extraction &amp; tax model · sole director</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:20px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:#8b929c">Accounting period 1 Nov – 31 Oct</div>
+        <div style="display:flex;gap:0;border:1px solid #d6d3cb;border-radius:7px;overflow:hidden;background:#fff">
+          <button onClick="{{ setYear2526 }}" style="{{ v.tabA }}">2025/26</button>
+          <button onClick="{{ setYear2627 }}" style="{{ v.tabB }}">2026/27</button>
+        </div>
+      </div>
+    </div>
+    <nav style="display:flex;gap:26px">
+      <button onClick="{{ goModel }}" style="{{ v.navModel }}">Model</button>
+      <button onClick="{{ goSens }}" style="{{ v.navSens }}">Sensitivity</button>
+      <button onClick="{{ goAssume }}" style="{{ v.navAssume }}">Assumptions &amp; sources</button>
+    </nav>
+  </header>
+
+  <sc-if value="{{ isModel }}" hint-placeholder-val="{{ true }}">
+  <div style="display:grid;grid-template-columns:308px minmax(0,1fr) 322px;gap:18px;align-items:start">
+
+    <!-- ============ LEFT: INPUTS ============ -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:16px 16px 18px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c;margin-bottom:14px">01 · Business</div>
+
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
+              <label style="font-size:12.5px;font-weight:500">Client revenue <span style="color:#8b929c;font-weight:400">(ex VAT)</span></label>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:500">{{ v.revenue }}</span>
+            </div>
+            <input type="range" min="0" max="500000" step="2500" value="{{ revenue }}" onChange="{{ onRevenue }}">
+            <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#a9aeb6"><span>£0</span><span>£500k</span></div>
+          </div>
+
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
+              <label style="font-size:12.5px;font-weight:500">Business expenses</label>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:500">{{ v.expenses }}</span>
+            </div>
+            <input type="range" min="0" max="120000" step="500" value="{{ expenses }}" onChange="{{ onExpenses }}">
+            <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#a9aeb6"><span>£0</span><span>£120k</span></div>
+          </div>
+
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
+              <label style="font-size:12.5px;font-weight:500">Employer pension</label>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:500">{{ v.pension }}</span>
+            </div>
+            <input type="range" min="0" max="60000" step="500" value="{{ pension }}" onChange="{{ onPension }}">
+            <div style="font-size:11px;color:#8b929c;line-height:1.4;margin-top:3px">Corporation-tax deductible, no NI, not personal income. Annual allowance £60,000.</div>
+          </div>
+        </div>
+      </section>
+
+      <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:16px 16px 18px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c">02 · How you drive it</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px">
+          <button onClick="{{ setModeTarget }}" style="{{ v.modeA }}">Target net → suggest</button>
+          <button onClick="{{ setModeManual }}" style="{{ v.modeB }}">Set salary + dividend</button>
+        </div>
+
+        <sc-if value="{{ isTarget }}" hint-placeholder-val="{{ true }}">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
+              <label style="font-size:12.5px;font-weight:500">Net cash you want, in hand</label>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:600;color:#0d6b5e">{{ v.targetNet }}</span>
+            </div>
+            <input type="range" min="0" max="250000" step="1000" value="{{ targetNet }}" onChange="{{ onTargetNet }}">
+            <div style="font-size:11px;color:#8b929c;line-height:1.45;margin-top:3px">{{ v.solveNote }}</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isManual }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
+              <label style="font-size:12.5px;font-weight:500">Dividends declared</label>
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:500">{{ v.dividends }}</span>
+            </div>
+            <input type="range" min="0" max="300000" step="1000" value="{{ dividends }}" onChange="{{ onDividends }}">
+            <div style="font-size:11px;color:#8b929c;line-height:1.45;margin-top:3px">{{ v.manualNote }}</div>
+          </div>
+        </sc-if>
+
+        <div style="height:1px;background:#eae8e3;margin:16px 0"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px">
+          <label style="font-size:12.5px;font-weight:500">Director&rsquo;s salary</label>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:500">{{ v.salary }}</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px">
+          <button onClick="{{ setSal5000 }}" style="{{ v.sal5000 }}">£5,000 NI-free</button>
+          <button onClick="{{ setSal12570 }}" style="{{ v.sal12570 }}">£12,570 optimal</button>
+          <button onClick="{{ setSal50270 }}" style="{{ v.sal50270 }}">£50,270 basic cap</button>
+        </div>
+        <input type="range" min="0" max="130000" step="10" value="{{ salary }}" onChange="{{ onSalary }}">
+        <div style="font-size:11px;color:#8b929c;line-height:1.45;margin-top:3px">{{ v.salaryNote }}</div>
+
+        <div style="height:1px;background:#eae8e3;margin:16px 0"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2px">
+          <label style="font-size:12.5px;font-weight:500">Other personal income</label>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;font-weight:500">{{ v.otherIncome }}</span>
+        </div>
+        <input type="range" min="0" max="100000" step="500" value="{{ otherIncome }}" onChange="{{ onOther }}">
+        <div style="font-size:11px;color:#8b929c;line-height:1.45;margin-top:3px">Rent, interest, another employment. Sits under your dividends and pushes them into higher bands.</div>
+
+        <div style="height:1px;background:#eae8e3;margin:16px 0"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+          <label style="font-size:12.5px;font-weight:500">Plan 2 student loan</label>
+          <div style="display:flex;gap:0;border:1px solid #d6d3cb;border-radius:7px;overflow:hidden;background:#fbfaf8;flex:none">
+            <button onClick="{{ slOff }}" style="{{ v.slOff }}">Not repaying</button>
+            <button onClick="{{ slOn }}" style="{{ v.slOn }}">Repaying</button>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#8b929c;line-height:1.45;margin-top:6px">{{ v.slNote }}</div>
+      </section>
+
+      <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:14px 16px 16px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c;margin-bottom:10px">Assumptions in force</div>
+        <div style="display:flex;flex-direction:column;gap:7px;font-size:11.5px;color:#565c66;line-height:1.45">
+          <div style="display:flex;gap:8px"><span style="color:#b8502c">·</span><span>{{ v.assumeCT }}</span></div>
+          <div style="display:flex;gap:8px"><span style="color:#b8502c">·</span><span>{{ v.assumeDiv }}</span></div>
+          <div style="display:flex;gap:8px"><span style="color:#b8502c">·</span><span>{{ v.slAssume }}</span></div>
+          <div style="display:flex;gap:8px"><span style="color:#b8502c">·</span><span>No Employment Allowance — sole director, so employer NI applies from £5,000.</span></div>
+          <div style="display:flex;gap:8px"><span style="color:#b8502c">·</span><span>VAT excluded throughout. No director&rsquo;s loan. No brought-forward reserves.</span></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ CENTRE: FLOW + TIMELINE ============ -->
+    <div style="display:flex;flex-direction:column;gap:18px;min-width:0">
+
+      <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:18px 20px 20px">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:6px">
+          <div>
+            <h2 style="margin:0 0 3px;font-size:15.5px;font-weight:600;letter-spacing:-.01em">Where every pound goes</h2>
+            <p style="margin:0;font-size:12px;color:#767c86">{{ v.flowSubtitle }}</p>
+          </div>
+          <div style="display:flex;gap:0;border:1px solid #d6d3cb;border-radius:7px;overflow:hidden;background:#fbfaf8;flex:none">
+            <button onClick="{{ setFlowSankey }}" style="{{ v.fSankey }}">Flow</button>
+            <button onClick="{{ setFlowWaterfall }}" style="{{ v.fWaterfall }}">Waterfall</button>
+            <button onClick="{{ setFlowBuckets }}" style="{{ v.fBuckets }}">Buckets</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:18px;flex-wrap:wrap;margin:12px 0 6px">
+          <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#565c66"><span style="width:9px;height:9px;border-radius:2px;background:#0d6b5e"></span>You keep</div>
+          <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#565c66"><span style="width:9px;height:9px;border-radius:2px;background:#b8502c"></span>HMRC</div>
+          <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#565c66"><span style="width:9px;height:9px;border-radius:2px;background:#8a9099"></span>Cost of trading</div>
+          <div style="{{ v.slLegend }}"><span style="width:9px;height:9px;border-radius:2px;background:#6f4e7c"></span>Student loan</div>
+          <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#565c66"><span style="width:9px;height:9px;border-radius:2px;background:#4f7a86"></span>Pension (yours, later)</div>
+          <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#565c66"><span style="width:9px;height:9px;border-radius:2px;background:#3a6ea5"></span>Left in company</div>
+        </div>
+
+        <sc-if value="{{ isSankey }}" hint-placeholder-val="{{ true }}">
+          <div ref="{{ chartRef }}" style="position:relative;margin-top:8px">
+            <svg viewBox="{{ vbSankey }}" style="width:100%;height:auto;display:block">
+              <sc-for list="{{ links }}" as="l" hint-placeholder-count="12">
+                <path d="{{ l.d }}" fill="{{ l.fill }}" opacity="{{ l.op }}"></path>
+              </sc-for>
+              <sc-for list="{{ nodes }}" as="n" hint-placeholder-count="14">
+                <rect x="{{ n.x }}" y="{{ n.y }}" width="13" height="{{ n.h }}" rx="2" fill="{{ n.fill }}"></rect>
+              </sc-for>
+            </svg>
+            <div style="{{ sankeyOverlay }}">
+              <sc-for list="{{ nodes }}" as="n" hint-placeholder-count="14">
+                <div style="{{ n.lstyle }}">
+                  <div style="font-size:11.5px;font-weight:600;color:#14161a;line-height:1.25">{{ n.label }}</div>
+                  <div style="{{ n.amtStyle }}">{{ n.amount }}</div>
+                </div>
+              </sc-for>
+              <sc-for list="{{ stageLabels }}" as="s" hint-placeholder-count="5">
+                <div style="{{ s.style }}">{{ s.t }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isWaterfall }}" hint-placeholder-val="{{ false }}">
+          <div ref="{{ chartRef }}" style="position:relative;margin-top:8px">
+            <svg viewBox="{{ vbWf }}" style="width:100%;height:auto;display:block">
+              <sc-for list="{{ wfGrid }}" as="g" hint-placeholder-count="5">
+                <line x1="38" x2="{{ wfGridX2 }}" y1="{{ g.y }}" y2="{{ g.y }}" stroke="#eae8e3"></line>
+              </sc-for>
+              <sc-for list="{{ wfBars }}" as="b" hint-placeholder-count="9">
+                <rect x="{{ b.x }}" y="{{ b.y }}" width="{{ b.w }}" height="{{ b.h }}" rx="2" fill="{{ b.fill }}"></rect>
+              </sc-for>
+              <sc-for list="{{ wfLines }}" as="c" hint-placeholder-count="8">
+                <line x1="{{ c.x1 }}" x2="{{ c.x2 }}" y1="{{ c.y }}" y2="{{ c.y }}" stroke="#c9c6bf" stroke-dasharray="2 3"></line>
+              </sc-for>
+            </svg>
+            <div style="{{ wfOverlay }}">
+              <sc-for list="{{ wfGrid }}" as="g" hint-placeholder-count="5">
+                <div style="{{ g.style }}">{{ g.label }}</div>
+              </sc-for>
+              <sc-for list="{{ wfBars }}" as="b" hint-placeholder-count="9">
+                <div>
+                  <div style="{{ b.valStyle }}">{{ b.amount }}</div>
+                  <div style="{{ b.labStyle }}">
+                    <div style="font-size:11px;color:#565c66;line-height:1.3">{{ b.label }}</div>
+                    <div style="font-size:10px;color:#a9aeb6;line-height:1.3">{{ b.sub }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isBuckets }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-top:16px">
+            <div style="display:flex;height:58px;border-radius:8px;overflow:hidden;border:1px solid #e3e1dc">
+              <sc-for list="{{ buckets }}" as="b" hint-placeholder-count="5">
+                <div style="{{ b.barStyle }}"><span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#fff;font-weight:500">{{ b.pct }}</span></div>
+              </sc-for>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:18px">
+              <sc-for list="{{ buckets }}" as="b" hint-placeholder-count="5">
+                <div style="{{ b.cardStyle }}">
+                  <div style="display:flex;align-items:center;gap:7px;margin-bottom:8px"><span style="{{ b.dot }}"></span><span style="font-size:12px;font-weight:600">{{ b.label }}</span></div>
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:21px;font-weight:500;letter-spacing:-.02em">{{ b.amount }}</div>
+                  <div style="font-size:11px;color:#8b929c;margin-top:2px">{{ b.pct }} of revenue</div>
+                  <div style="margin-top:10px;display:flex;flex-direction:column;gap:4px">
+                    <sc-for list="{{ b.rows }}" as="r" hint-placeholder-count="3">
+                      <div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#565c66"><span>{{ r.k }}</span><span style="font-family:'IBM Plex Mono',monospace">{{ r.v }}</span></div>
+                    </sc-for>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </section>
+
+      <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:18px 20px 20px">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:16px">
+          <div>
+            <h2 style="margin:0 0 3px;font-size:15.5px;font-weight:600;letter-spacing:-.01em">Cash out, month by month</h2>
+            <p style="margin:0;font-size:12px;color:#767c86">{{ v.timelineSubtitle }}</p>
+          </div>
+          <div style="display:flex;gap:16px">
+            <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#565c66"><span style="width:9px;height:9px;border-radius:2px;background:#0d6b5e"></span>To you</div>
+            <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#565c66"><span style="width:9px;height:9px;border-radius:2px;background:#b8502c"></span>To HMRC</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:6px;align-items:end;height:186px">
+          <sc-for list="{{ months }}" as="m" hint-placeholder-count="12">
+            <div style="display:flex;flex-direction:column;justify-content:flex-end;height:100%;gap:3px">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#a9aeb6;text-align:center;white-space:nowrap">{{ m.total }}</div>
+              <div style="{{ m.hmrcStyle }}"></div>
+              <div style="{{ m.youStyle }}"></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:6px;margin-top:7px;border-top:1px solid #eae8e3;padding-top:7px">
+          <sc-for list="{{ months }}" as="m" hint-placeholder-count="12">
+            <div style="text-align:center">
+              <div style="font-size:11px;font-weight:500;color:#14161a">{{ m.label }}</div>
+              <div style="font-size:9.5px;color:#a9aeb6;font-family:'IBM Plex Mono',monospace">{{ m.year }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="margin-top:18px;border-top:1px solid #eae8e3;padding-top:14px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c;margin-bottom:10px">Statutory due dates</div>
+          <div style="display:flex;flex-direction:column;gap:0">
+            <sc-for list="{{ dueDates }}" as="d" hint-placeholder-count="6">
+              <div style="display:grid;grid-template-columns:104px 1fr 128px 108px;gap:14px;align-items:baseline;padding:8px 0;border-bottom:1px solid #f1efeb">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:500">{{ d.date }}</div>
+                <div><div style="font-size:12.5px;font-weight:500">{{ d.title }}</div><div style="font-size:11px;color:#8b929c;margin-top:1px">{{ d.note }}</div></div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:13px;text-align:right;color:{{ d.colour }}">{{ d.amount }}</div>
+                <div style="text-align:right"><span style="{{ d.chip }}">{{ d.payer }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ RIGHT: RESULTS ============ -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <section style="background:#14161a;color:#f6f5f2;border-radius:12px;padding:18px 18px 20px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c">Net in your pocket</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:38px;font-weight:500;letter-spacing:-.03em;margin:6px 0 2px;color:#a8dccf">{{ v.netTake }}</div>
+        <div style="font-size:12px;color:#a9aeb6">{{ v.netPerMonth }} a month · from {{ v.revenue }} of revenue</div>
+        <div style="{{ v.slLineStyle }}">{{ v.slLine }}</div>
+        <div style="height:1px;background:#2a2d33;margin:15px 0 13px"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div>
+            <div style="font-size:11px;color:#8b929c;margin-bottom:2px">Total tax &amp; NI</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:19px;color:#e8a184">{{ v.totalTax }}</div>
+            <div style="font-size:10.5px;color:#767c86;margin-top:1px">{{ v.totalTaxPct }} of revenue</div>
+          </div>
+          <div>
+            <div style="font-size:11px;color:#8b929c;margin-bottom:2px">Left in company</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:19px;color:#8fb6dd">{{ v.retained }}</div>
+            <div style="font-size:10.5px;color:#767c86;margin-top:1px">retained profit</div>
+          </div>
+        </div>
+        <div style="{{ v.warnStyle }}">{{ v.warnText }}</div>
+      </section>
+
+      <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:16px 16px 8px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c;margin-bottom:4px">The suggested split</div>
+        <sc-for list="{{ splitRows }}" as="r" hint-placeholder-count="8">
+          <div style="{{ r.rowStyle }}">
+            <div style="min-width:0"><div style="{{ r.kStyle }}">{{ r.k }}</div><div style="font-size:10.5px;color:#a9aeb6;margin-top:1px">{{ r.sub }}</div></div>
+            <div style="{{ r.vStyle }}">{{ r.v }}</div>
+          </div>
+        </sc-for>
+      </section>
+
+      <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c">Could you do better?</div>
+        </div>
+        <p style="margin:0 0 12px;font-size:11.5px;color:#767c86;line-height:1.45">Same {{ v.netTake }} in your pocket, different salary. Ranked by total tax.</p>
+        <sc-for list="{{ optRows }}" as="o" hint-placeholder-count="4">
+          <div style="{{ o.style }}">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <div style="font-size:12.5px;font-weight:600">{{ o.salary }} salary</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:{{ o.deltaColour }}">{{ o.delta }}</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:3px">
+              <div style="font-size:11px;color:#8b929c">{{ o.dividends }} dividends · {{ o.note }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8b929c">{{ o.tax }} tax</div>
+            </div>
+            <button onClick="{{ o.apply }}" style="{{ o.btn }}">Use this</button>
+          </div>
+        </sc-for>
+      </section>
+
+      <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c">Scenarios</div>
+          <div style="display:flex;gap:5px">
+            <button onClick="{{ saveA }}" style="{{ v.saveBtn }}">Save as A</button>
+            <button onClick="{{ saveB }}" style="{{ v.saveBtn }}">Save as B</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 74px 74px;gap:8px;align-items:baseline;padding-bottom:7px;border-bottom:1px solid #eae8e3">
+          <div style="font-size:10.5px;color:#a9aeb6;font-family:'IBM Plex Mono',monospace;letter-spacing:.05em">METRIC</div>
+          <div style="{{ v.scenAHead }}">A</div>
+          <div style="{{ v.scenBHead }}">B</div>
+        </div>
+        <sc-for list="{{ compareRows }}" as="c" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:1fr 74px 74px;gap:8px;align-items:baseline;padding:7px 0;border-bottom:1px solid #f4f2ee">
+            <div style="font-size:11.5px;color:#565c66">{{ c.k }}</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-align:right;color:{{ c.aColour }}">{{ c.a }}</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;text-align:right;color:{{ c.bColour }}">{{ c.b }}</div>
+          </div>
+        </sc-for>
+        <div style="font-size:11px;color:#a9aeb6;margin-top:10px;line-height:1.45">{{ v.scenNote }}</div>
+      </section>
+
+      <p style="margin:2px 4px 0;font-size:10.5px;color:#9aa0a8;line-height:1.5">Planning model, not tax advice. Rates as noted per year; check figures with your accountant before filing or declaring a dividend.</p>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isSens }}" hint-placeholder-val="{{ false }}">
+  <div style="width:1348px;display:flex;flex-direction:column;gap:16px">
+
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:16px 18px 17px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c">Money that left the company</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-.025em;margin:6px 0 4px">{{ v.pool }}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#767c86;background:#f7f6f3;border-radius:6px;padding:7px 9px;line-height:1.5">revenue − expenses − retained profit</div>
+        <div style="font-size:11.5px;color:#767c86;line-height:1.5;margin-top:8px">The denominator. Everything the business generated for you or for HMRC this year — trading costs and money still sitting in the company are both excluded.</div>
+      </section>
+      <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:16px 18px 17px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c">Take-home rate</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-.025em;margin:6px 0 4px;color:#0d6b5e">{{ v.rateTake }}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#767c86;background:#f7f6f3;border-radius:6px;padding:7px 9px;line-height:1.5">net in pocket ÷ money that left</div>
+        <div style="font-size:11.5px;color:#767c86;line-height:1.5;margin-top:8px">{{ v.rateTakeNote }}</div>
+      </section>
+      <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:16px 18px 17px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c">Effective tax rate</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:500;letter-spacing:-.025em;margin:6px 0 4px;color:#b8502c">{{ v.rateTax }}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#767c86;background:#f7f6f3;border-radius:6px;padding:7px 9px;line-height:1.5">(CT + employer NI + PAYE + NI + dividend tax) ÷ money that left</div>
+        <div style="font-size:11.5px;color:#767c86;line-height:1.5;margin-top:8px">{{ v.rateSumNote }}</div>
+      </section>
+    </div>
+
+    <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:15px 18px 16px;display:flex;align-items:flex-end;gap:32px;flex-wrap:wrap">
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c;margin-bottom:7px">Extraction policy</div>
+        <div style="display:flex;gap:0;border:1px solid #d6d3cb;border-radius:7px;overflow:hidden">
+          <button onClick="{{ setPolicyMax }}" style="{{ v.polMax }}">Take everything available</button>
+          <button onClick="{{ setPolicyFixed }}" style="{{ v.polFixed }}">Keep today&rsquo;s dividend</button>
+        </div>
+      </div>
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c;margin-bottom:7px">Output measured</div>
+        <div style="display:flex;gap:0;border:1px solid #d6d3cb;border-radius:7px;overflow:hidden">
+          <button onClick="{{ setMetricNet }}" style="{{ v.mNet }}">Net in pocket</button>
+          <button onClick="{{ setMetricRate }}" style="{{ v.mRate }}">Take-home rate</button>
+          <button onClick="{{ setMetricTaxRate }}" style="{{ v.mTaxRate }}">Effective tax rate</button>
+          <button onClick="{{ setMetricTax }}" style="{{ v.mTax }}">Total tax</button>
+        </div>
+      </div>
+      <div style="min-width:220px;flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:#8b929c">Swing tested</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:12px">± {{ v.swing }}</div>
+        </div>
+        <input type="range" min="5" max="50" step="5" value="{{ swing }}" onChange="{{ onSwing }}">
+      </div>
+      <div style="font-size:11.5px;color:#767c86;line-height:1.5;max-width:320px">{{ v.policyNote }}</div>
+    </section>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:18px 18px 20px">
+        <h2 style="margin:0 0 3px;font-size:15.5px;font-weight:600;letter-spacing:-.01em">What moves the needle</h2>
+        <p style="margin:0 0 16px;font-size:12px;color:#767c86">Each input flexed ± {{ v.swing }} on its own. Bars show the change in {{ v.metricLabel }} against today&rsquo;s {{ v.metricValue }}.</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ tornado }}" as="t" hint-placeholder-count="5">
+            <div style="display:grid;grid-template-columns:116px 68px minmax(0,1fr) 68px;gap:8px;align-items:center">
+              <div>
+                <div style="font-size:12px;font-weight:500;line-height:1.25">{{ t.label }}</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#a9aeb6">{{ t.range }}</div>
+              </div>
+              <div style="{{ t.lowLabel }}">{{ t.lowText }}</div>
+              <div style="position:relative;height:30px;background:#f7f6f3;border-radius:5px">
+                <div style="position:absolute;left:50%;top:0;bottom:0;width:1px;background:#d6d3cb"></div>
+                <div style="{{ t.lowBar }}"></div>
+                <div style="{{ t.highBar }}"></div>
+              </div>
+              <div style="{{ t.highLabel }}">{{ t.highText }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:18px;margin-top:14px;padding-top:12px;border-top:1px solid #f1efeb">
+          <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#565c66"><span style="width:9px;height:9px;border-radius:2px;background:#b8502c"></span>{{ v.tornadoDown }}</div>
+          <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#565c66"><span style="width:9px;height:9px;border-radius:2px;background:#0d6b5e"></span>{{ v.tornadoUp }}</div>
+        </div>
+      </section>
+
+      <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:18px 18px 20px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:4px">
+          <div>
+            <h2 style="margin:0 0 3px;font-size:15.5px;font-weight:600;letter-spacing:-.01em">Response curve</h2>
+            <p style="margin:0;font-size:12px;color:#767c86">{{ v.sweepSubtitle }}</p>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin:10px 0 6px">
+          <button onClick="{{ sweepRevenue }}" style="{{ v.swRevenue }}">Revenue</button>
+          <button onClick="{{ sweepExpenses }}" style="{{ v.swExpenses }}">Expenses</button>
+          <button onClick="{{ sweepSalary }}" style="{{ v.swSalary }}">Salary</button>
+          <button onClick="{{ sweepPension }}" style="{{ v.swPension }}">Pension</button>
+          <button onClick="{{ sweepOther }}" style="{{ v.swOther }}">Other income</button>
+        </div>
+        <div style="position:relative;width:610px;height:250px">
+          <svg viewBox="0 0 610 250" style="width:610px;height:250px;display:block">
+            <sc-for list="{{ sweepGrid }}" as="g" hint-placeholder-count="5">
+              <line x1="46" x2="564" y1="{{ g.y }}" y2="{{ g.y }}" stroke="#eae8e3"></line>
+            </sc-for>
+            <polyline points="{{ sweepSecondary }}" fill="none" stroke="#b8502c" stroke-width="1.5" stroke-dasharray="4 3"></polyline>
+            <polyline points="{{ sweepPrimary }}" fill="none" stroke="#0d6b5e" stroke-width="2"></polyline>
+            <line x1="{{ markerX }}" x2="{{ markerX }}" y1="16" y2="216" stroke="#14161a" stroke-width="1" stroke-dasharray="2 3"></line>
+            <circle cx="{{ markerX }}" cy="{{ markerY }}" r="4" fill="#0d6b5e" stroke="#fff" stroke-width="1.5"></circle>
+          </svg>
+          <div style="position:absolute;left:0;top:0;width:610px;height:250px;pointer-events:none">
+            <sc-for list="{{ sweepGrid }}" as="g" hint-placeholder-count="5">
+              <div style="{{ g.style }}">{{ g.label }}</div>
+            </sc-for>
+            <sc-for list="{{ sweepXTicks }}" as="x" hint-placeholder-count="5">
+              <div style="{{ x.style }}">{{ x.label }}</div>
+            </sc-for>
+            <sc-for list="{{ sweepRight }}" as="g" hint-placeholder-count="5">
+              <div style="{{ g.style }}">{{ g.label }}</div>
+            </sc-for>
+            <div style="{{ v.markerLabelStyle }}">{{ v.markerLabel }}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:18px;margin-top:8px;padding-top:12px;border-top:1px solid #f1efeb">
+          <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#565c66"><span style="width:14px;height:2px;background:#0d6b5e"></span>{{ v.metricLabel }} (left)</div>
+          <div style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:#565c66"><span style="width:14px;height:0;border-top:2px dashed #b8502c"></span>Effective tax rate (right)</div>
+        </div>
+      </section>
+    </div>
+
+    <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:18px 20px 20px">
+      <h2 style="margin:0 0 3px;font-size:15.5px;font-weight:600;letter-spacing:-.01em">Salary against pension</h2>
+      <p style="margin:0 0 14px;font-size:12px;color:#767c86">{{ v.heatSubtitle }} Darker is better. Click any cell to load it into the model.</p>
+      <div style="display:grid;grid-template-columns:104px repeat(7,1fr);gap:3px;align-items:stretch">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.06em;color:#a9aeb6;display:flex;align-items:flex-end;padding-bottom:5px;white-space:nowrap">SALARY ↓</div>
+        <sc-for list="{{ heatCols }}" as="c" hint-placeholder-count="7">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#565c66;text-align:center;padding-bottom:5px;align-self:flex-end">{{ c.label }}</div>
+        </sc-for>
+        <sc-for list="{{ heatRows }}" as="r" hint-placeholder-count="8">
+          <div style="display:grid;grid-template-columns:104px repeat(7,1fr);gap:3px;grid-column:1 / -1">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#565c66;display:flex;align-items:center">{{ r.label }}</div>
+            <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="7">
+              <button onClick="{{ c.apply }}" style="{{ c.style }}">{{ c.text }}</button>
+            </sc-for>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:14px;padding-top:12px;border-top:1px solid #f1efeb">
+        <span style="font-size:11.5px;color:#767c86">{{ v.heatWorst }}</span>
+        <div style="{{ v.heatRamp }}"></div>
+        <span style="font-size:11.5px;color:#767c86">{{ v.heatBest }}</span>
+        <span style="font-size:11.5px;color:#a9aeb6;margin-left:8px">{{ v.heatNote }}</span>
+      </div>
+    </section>
+
+    <p style="margin:2px 4px 0;font-size:10.5px;color:#9aa0a8;line-height:1.5">Every figure recalculated from the same engine as the model page — see Assumptions &amp; sources for the rates and the modelling choices behind it.</p>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isAssume }}" hint-placeholder-val="{{ false }}">
+  <div style="width:1040px;display:flex;flex-direction:column;gap:16px">
+
+    <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:22px 26px 24px">
+      <h2 style="margin:0 0 8px;font-size:19px;font-weight:600;letter-spacing:-.015em">How this model works</h2>
+      <p style="margin:0 0 16px;font-size:13.5px;color:#565c66;line-height:1.6;max-width:74ch">Everything on the model page comes from one calculation, run in the order below. Nothing is estimated or smoothed: change an input and every figure downstream is recomputed from the statutory rates listed on this page.</p>
+      <ol style="margin:0;padding-left:22px;font-size:13px;color:#14161a;line-height:1.75">
+        <li>Client revenue, excluding VAT, less business expenses.</li>
+        <li>Less director&rsquo;s gross salary and the employer National Insurance on it.</li>
+        <li>Less any employer pension contribution — deductible for the company, not taxable on you.</li>
+        <li>The remainder is taxable profit. Corporation tax is applied with marginal relief where profit falls between £50,000 and £250,000.</li>
+        <li>Profit after tax is distributable. Dividends are declared from it; whatever is left stays in the company.</li>
+        <li>On your side: the personal allowance is set against salary and other income first, then dividends are treated as the top slice of income. Employee NI applies to salary only.</li>
+        <li>Net in pocket is salary plus dividends, less the income tax, employee NI and dividend tax that arise because of them.</li>
+        <li>If a Plan 2 student loan is switched on, 9% of repayment income above the threshold is deducted last. Salary is repayment income; dividends and other unearned income join it in full once they exceed £2,000 in the year.</li>
+      </ol>
+    </section>
+
+    <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:22px 26px 24px">
+      <h2 style="margin:0 0 4px;font-size:16px;font-weight:600;letter-spacing:-.01em">Rates and thresholds</h2>
+      <p style="margin:0 0 16px;font-size:12.5px;color:#767c86;line-height:1.55">Both years the model can run. Figures are UK-wide; Scottish income tax rates would change the salary column but not dividends.</p>
+      <div style="display:grid;grid-template-columns:1.35fr 108px 108px 1.5fr;gap:0;font-size:12.5px">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.08em;color:#a9aeb6;padding:0 0 8px">ITEM</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.08em;color:#a9aeb6;padding:0 0 8px;text-align:right">2025/26</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.08em;color:#a9aeb6;padding:0 0 8px;text-align:right">2026/27</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.08em;color:#a9aeb6;padding:0 0 8px 22px">SOURCE</div>
+
+        <div style="grid-column:1 / -1;height:1px;background:#dcdad3;margin-bottom:9px"></div>
+
+        <div style="padding:7px 0;font-weight:500">Personal allowance</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">£12,570</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">£12,570</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86">Frozen to April 2031 · <a href="https://www.gov.uk/income-tax-rates" target="_blank" rel="noopener">gov.uk income tax rates</a></div>
+
+        <div style="padding:7px 0;font-weight:500">Allowance taper</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">£1 per £2 over £100,000</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">same</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86"><a href="https://www.gov.uk/income-tax-rates/income-over-100000" target="_blank" rel="noopener">gov.uk income over £100,000</a></div>
+
+        <div style="padding:7px 0;font-weight:500">Basic rate band / rate</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">£37,700 · 20%</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">£37,700 · 20%</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86">Band frozen to April 2031 · <a href="https://www.gov.uk/income-tax-rates" target="_blank" rel="noopener">gov.uk</a></div>
+
+        <div style="padding:7px 0;font-weight:500">Higher / additional rate</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">40% · 45% over £125,140</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">same</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86"><a href="https://www.gov.uk/income-tax-rates" target="_blank" rel="noopener">gov.uk income tax rates</a></div>
+
+        <div style="grid-column:1 / -1;height:1px;background:#f1efeb;margin:5px 0"></div>
+
+        <div style="padding:7px 0;font-weight:500">Dividend allowance</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">£500</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">£500</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86">Uses band space but taxed at 0% · <a href="https://www.gov.uk/tax-on-dividends" target="_blank" rel="noopener">gov.uk tax on dividends</a></div>
+
+        <div style="padding:7px 0;font-weight:500">Dividend ordinary rate</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">8.75%</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace;color:#b8502c">10.75%</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86">+2pp from 6 April 2026, Autumn Budget 2025 · <a href="https://www.icaew.com/insights/tax-news/2025/nov-2025/budget-taxes-on-property-savings-and-dividends-increased" target="_blank" rel="noopener">ICAEW</a></div>
+
+        <div style="padding:7px 0;font-weight:500">Dividend upper rate</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">33.75%</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace;color:#b8502c">35.75%</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86">+2pp from 6 April 2026 · <a href="https://taxscape.deloitte.com/measures-autumn-budget-2025/dividend--savings-and-property-income-tax-rate-increases.aspx" target="_blank" rel="noopener">Deloitte Taxscape</a></div>
+
+        <div style="padding:7px 0;font-weight:500">Dividend additional rate</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">39.35%</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">39.35%</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86">Unchanged · <a href="https://www.gov.uk/tax-on-dividends" target="_blank" rel="noopener">gov.uk</a></div>
+
+        <div style="grid-column:1 / -1;height:1px;background:#f1efeb;margin:5px 0"></div>
+
+        <div style="padding:7px 0;font-weight:500">Employee NI (class 1 primary)</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">8% £12,570–£50,270, then 2%</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">same</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86"><a href="https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026" target="_blank" rel="noopener">gov.uk rates for employers</a></div>
+
+        <div style="padding:7px 0;font-weight:500">Employer NI (secondary)</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">15% over £5,000</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">15% over £5,000</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86">Rate and threshold unchanged for 2026/27 · <a href="https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026" target="_blank" rel="noopener">gov.uk</a></div>
+
+        <div style="padding:7px 0;font-weight:500">Employment Allowance</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">not claimed</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">not claimed</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86">A company whose only employee is a director cannot claim · <a href="https://www.gov.uk/claim-employment-allowance/eligibility" target="_blank" rel="noopener">gov.uk eligibility</a></div>
+
+        <div style="padding:7px 0;font-weight:500">Lower earnings limit</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">£6,500</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">£6,708</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86">Salary at or above this earns a qualifying year for state pension</div>
+
+        <div style="grid-column:1 / -1;height:1px;background:#f1efeb;margin:5px 0"></div>
+
+        <div style="padding:7px 0;font-weight:500">Plan 2 repayment threshold</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">£28,470</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace;color:#b8502c">£29,385</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86">Rises April 2026, then frozen at £29,385 for three years from April 2027 · <a href="https://www.gov.uk/repaying-your-student-loan/what-you-pay" target="_blank" rel="noopener">gov.uk repaying your student loan</a></div>
+
+        <div style="padding:7px 0;font-weight:500">Plan 2 repayment rate</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">9%</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">9%</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86">Of income above the threshold. Unearned income over £2,000 is included in full · <a href="https://www.gov.uk/guidance/special-rules-for-student-loan-repayments" target="_blank" rel="noopener">gov.uk unearned income rules</a></div>
+
+        <div style="grid-column:1 / -1;height:1px;background:#f1efeb;margin:5px 0"></div>
+
+        <div style="padding:7px 0;font-weight:500">Corporation tax — small profits</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">19% to £50,000</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">19% to £50,000</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86"><a href="https://www.gov.uk/corporation-tax-rates" target="_blank" rel="noopener">gov.uk corporation tax rates</a></div>
+
+        <div style="padding:7px 0;font-weight:500">Corporation tax — main rate</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">25% over £250,000</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">25% over £250,000</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86"><a href="https://www.gov.uk/corporation-tax-rates" target="_blank" rel="noopener">gov.uk</a></div>
+
+        <div style="padding:7px 0;font-weight:500">Marginal relief</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">25% × P − 1.5% × (250,000 − P)</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">same</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86">One associated company assumed · <a href="https://www.gov.uk/guidance/corporation-tax-marginal-relief" target="_blank" rel="noopener">gov.uk marginal relief</a></div>
+
+        <div style="padding:7px 0;font-weight:500">Pension annual allowance</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">£60,000</div>
+        <div style="padding:7px 0;text-align:right;font-family:'IBM Plex Mono',monospace">£60,000</div>
+        <div style="padding:7px 0 7px 22px;color:#767c86">Employer contributions carry no NI and no income tax · <a href="https://www.gov.uk/tax-on-your-private-pension/annual-allowance" target="_blank" rel="noopener">gov.uk annual allowance</a></div>
+      </div>
+    </section>
+
+    <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:22px 26px 24px">
+      <h2 style="margin:0 0 4px;font-size:16px;font-weight:600;letter-spacing:-.01em">Timing rules behind the calendar</h2>
+      <p style="margin:0 0 16px;font-size:12.5px;color:#767c86;line-height:1.55">The accounting period modelled here runs 1 November to 31 October, so company deadlines sit off the tax year.</p>
+      <div style="display:flex;flex-direction:column;gap:0;font-size:12.5px">
+        <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:22px;padding:9px 0;border-bottom:1px solid #f1efeb">
+          <div style="font-weight:500">Corporation tax — 1 August</div>
+          <div style="color:#767c86;line-height:1.5">Nine months and one day after the 31 October period end · <a href="https://www.gov.uk/pay-corporation-tax" target="_blank" rel="noopener">gov.uk pay corporation tax</a></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:22px;padding:9px 0;border-bottom:1px solid #f1efeb">
+          <div style="font-weight:500">CT600 and accounts — 31 October</div>
+          <div style="color:#767c86;line-height:1.5">Twelve months after the period end for the return; accounts to Companies House nine months after</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:22px;padding:9px 0;border-bottom:1px solid #f1efeb">
+          <div style="font-weight:500">PAYE and NI — quarterly, 22nd</div>
+          <div style="color:#767c86;line-height:1.5">Quarterly payment is allowed while average monthly liability is under £1,500, which a minimum salary always is · <a href="https://www.gov.uk/pay-paye-tax" target="_blank" rel="noopener">gov.uk pay employers&rsquo; PAYE</a></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:22px;padding:9px 0;border-bottom:1px solid #f1efeb">
+          <div style="font-weight:500">Self assessment — 31 January</div>
+          <div style="color:#767c86;line-height:1.5">Balancing payment for the tax year just ended, plus the first payment on account for the next · <a href="https://www.gov.uk/understand-self-assessment-bill/payments-on-account" target="_blank" rel="noopener">gov.uk payments on account</a></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:22px;padding:9px 0;border-bottom:1px solid #f1efeb">
+          <div style="font-weight:500">Student loan — split collection</div>
+          <div style="color:#767c86;line-height:1.5">The share arising on salary is deducted through payroll each month; the share arising on dividends is settled with the 31 January self assessment balancing payment and feeds the payments on account.</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:22px;padding:9px 0">
+          <div style="font-weight:500">Payments on account — 31 July</div>
+          <div style="color:#767c86;line-height:1.5">Each instalment is half the previous year&rsquo;s liability that was not collected at source. The model approximates this from the current year&rsquo;s dividend tax.</div>
+        </div>
+      </div>
+    </section>
+
+    <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:22px 26px 24px">
+      <h2 style="margin:0 0 4px;font-size:16px;font-weight:600;letter-spacing:-.01em">Modelling choices</h2>
+      <p style="margin:0 0 14px;font-size:12.5px;color:#767c86;line-height:1.55">Judgement calls where more than one treatment was defensible.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 26px;font-size:12.5px;line-height:1.55">
+        <div><span style="font-weight:500">Salary drawn evenly.</span> <span style="color:#767c86">One twelfth a month, and dividends spread evenly too, so the monthly chart is smooth. Real dividends are lumpy and can be timed across 5 April.</span></div>
+        <div><span style="font-weight:500">Dividend tax attributed to you.</span> <span style="color:#767c86">Net in pocket subtracts only the tax caused by company income — tax on other income is excluded from the split.</span></div>
+        <div><span style="font-weight:500">Other income sits below dividends.</span> <span style="color:#767c86">Dividends are the top slice, which is how HMRC stacks them, so other income pushes them into higher bands.</span></div>
+        <div><span style="font-weight:500">No reserves brought forward.</span> <span style="color:#767c86">Distributable profit is this year&rsquo;s only. If the company has retained earnings, real headroom is higher.</span></div>
+        <div><span style="font-weight:500">Student loan is not a tax.</span> <span style="color:#767c86">It is shown as its own deduction and comes off net in pocket, but it is left out of &ldquo;total tax &amp; NI&rdquo; and the effective tax rate — it repays a debt rather than funding the state.</span></div>
+        <div><span style="font-weight:500">Pension treated as yours.</span> <span style="color:#767c86">Counted separately from take-home, not as tax — locked until 57 but untaxed on the way in.</span></div>
+        <div><span style="font-weight:500">Tax year rates, company year cash.</span> <span style="color:#767c86">Rates come from the selected tax year; the calendar shows the 1 Nov – 31 Oct company year. A period straddling 6 April blends two rate sets in reality.</span></div>
+      </div>
+    </section>
+
+    <section style="background:#fff;border:1px solid #e3e1dc;border-radius:12px;padding:22px 26px 24px">
+      <h2 style="margin:0 0 4px;font-size:16px;font-weight:600;letter-spacing:-.01em">Deliberately out of scope</h2>
+      <p style="margin:0 0 14px;font-size:12.5px;color:#767c86;line-height:1.55">Each of these would change the answer. Say the word and any can be added.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 26px;font-size:12.5px;color:#565c66;line-height:1.5">
+        <div>VAT and the flat rate scheme — all figures are net of VAT</div>
+        <div>Director&rsquo;s loan account and the section 455 charge</div>
+        <div>A second shareholder or spouse splitting dividends</div>
+        <div>Scottish income tax rates on salary</div>
+        <div>The high income child benefit charge</div>
+        <div>Plan 1, 4, 5 and postgraduate loans — only Plan 2 is modelled</div>        <div>Capital allowances, R&amp;D relief, losses carried back or forward</div>
+        <div>Off-payroll working, where the client deducts tax at source</div>
+        <div>Pension tapering for adjusted income over £260,000, and carry forward</div>
+        <div>Benefits in kind, mileage, use of home, and other reliefs</div>
+        <div>Business asset disposal relief on a future winding up</div>
+      </div>
+    </section>
+
+    <section style="background:#14161a;color:#f6f5f2;border-radius:12px;padding:22px 26px 24px">
+      <h2 style="margin:0 0 4px;font-size:16px;font-weight:600;letter-spacing:-.01em">Sources</h2>
+      <p style="margin:0 0 14px;font-size:12.5px;color:#a9aeb6;line-height:1.55">Primary guidance first, with the Autumn Budget 2025 confirmations for anything that changed in April 2026. Checked August 2026.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px 26px;font-size:12.5px;line-height:1.6">
+        <div><a href="https://www.gov.uk/income-tax-rates" target="_blank" rel="noopener" style="color:#a8dccf">gov.uk — Income Tax rates and Personal Allowances</a></div>
+        <div><a href="https://www.gov.uk/tax-on-dividends" target="_blank" rel="noopener" style="color:#a8dccf">gov.uk — Tax on dividends</a></div>
+        <div><a href="https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026" target="_blank" rel="noopener" style="color:#a8dccf">gov.uk — Rates and thresholds for employers</a></div>
+        <div><a href="https://www.gov.uk/corporation-tax-rates" target="_blank" rel="noopener" style="color:#a8dccf">gov.uk — Corporation Tax rates and reliefs</a></div>
+        <div><a href="https://www.gov.uk/guidance/corporation-tax-marginal-relief" target="_blank" rel="noopener" style="color:#a8dccf">gov.uk — Marginal Relief for Corporation Tax</a></div>
+        <div><a href="https://www.gov.uk/claim-employment-allowance/eligibility" target="_blank" rel="noopener" style="color:#a8dccf">gov.uk — Employment Allowance eligibility</a></div>
+        <div><a href="https://www.gov.uk/pay-corporation-tax" target="_blank" rel="noopener" style="color:#a8dccf">gov.uk — Pay your Corporation Tax bill</a></div>
+        <div><a href="https://www.gov.uk/pay-paye-tax" target="_blank" rel="noopener" style="color:#a8dccf">gov.uk — Pay employers&rsquo; PAYE</a></div>
+        <div><a href="https://www.gov.uk/understand-self-assessment-bill/payments-on-account" target="_blank" rel="noopener" style="color:#a8dccf">gov.uk — Payments on account</a></div>
+        <div><a href="https://www.gov.uk/tax-on-your-private-pension/annual-allowance" target="_blank" rel="noopener" style="color:#a8dccf">gov.uk — Pension annual allowance</a></div>
+        <div><a href="https://www.gov.uk/repaying-your-student-loan/what-you-pay" target="_blank" rel="noopener" style="color:#a8dccf">gov.uk — Repaying your student loan</a></div>
+        <div><a href="https://www.gov.uk/guidance/special-rules-for-student-loan-repayments" target="_blank" rel="noopener" style="color:#a8dccf">gov.uk — Student loans: unearned income rules</a></div>
+        <div><a href="https://www.icaew.com/insights/tax-news/2025/nov-2025/budget-taxes-on-property-savings-and-dividends-increased" target="_blank" rel="noopener" style="color:#a8dccf">ICAEW — Budget: taxes on dividends increased</a></div>
+        <div><a href="https://taxscape.deloitte.com/measures-autumn-budget-2025/dividend--savings-and-property-income-tax-rate-increases.aspx" target="_blank" rel="noopener" style="color:#a8dccf">Deloitte Taxscape — Autumn Budget 2025 measure</a></div>
+      </div>
+      <p style="margin:18px 0 0;font-size:11px;color:#767c86;line-height:1.5">A planning model, not tax advice. Rates change, and the treatment of a specific transaction can differ. Confirm with your accountant before declaring a dividend or filing.</p>
+    </section>
+  </div>
+  </sc-if>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1460,&quot;height&quot;:1100}}">
+const R = {
+  '2025/26': {
+    pa:12570, basic:37700, addThr:125140, rB:.20, rH:.40, rA:.45,
+    divAllow:500, dB:.0875, dH:.3375, dA:.3935,
+    niPT:12570, niUEL:50270, niMain:.08, niUp:.02, erST:5000, erRate:.15,
+    ctSmall:.19, ctMain:.25, ctLo:50000, ctHi:250000, mr:.015,
+    slThr:28470, slRate:.09, slUnearned:2000,
+    ctNote:'Corporation tax 19% to £50,000, marginal relief to £250,000, 25% above.',
+    divNote:'Dividend tax 8.75 / 33.75 / 39.35%, £500 allowance.'
+  },
+  '2026/27': {
+    pa:12570, basic:37700, addThr:125140, rB:.20, rH:.40, rA:.45,
+    divAllow:500, dB:.1075, dH:.3575, dA:.3935,
+    niPT:12570, niUEL:50270, niMain:.08, niUp:.02, erST:5000, erRate:.15,
+    ctSmall:.19, ctMain:.25, ctLo:50000, ctHi:250000, mr:.015,
+    slThr:29385, slRate:.09, slUnearned:2000,
+    ctNote:'Corporation tax unchanged: 19% to £50,000, marginal relief to £250,000, 25% above.',
+    divNote:'Dividend tax 10.75 / 35.75 / 39.35% — basic and higher rates rise 2pp from 6 April 2026.'
+  }
+};
+
+const C = { you:'#0d6b5e', hmrc:'#b8502c', cost:'#8a9099', pens:'#4f7a86', keep:'#3a6ea5', ink:'#14161a', sl:'#6f4e7c' };
+
+const f0 = n => '£' + Math.round(n).toLocaleString('en-GB');
+const f2 = n => '£' + (Math.round(n * 100) / 100).toLocaleString('en-GB', {minimumFractionDigits:2, maximumFractionDigits:2});
+const pct = (n, d) => d > 0 ? (n / d * 100).toFixed(1) + '%' : '—';
+
+class Component extends DCLogic {
+  state = {
+    year: '2025/26', mode: 'target', flow: 'sankey',
+    revenue: 150000, expenses: 15000, pension: 0, otherIncome: 0,
+    salary: 12570, dividends: 60000, targetNet: 75000, studentLoan: false,
+    A: null, B: null, chartW: 1180,
+    tab: 'model', policy: 'max', swing: 20, sweepVar: 'revenue', metric: 'net'
+  };
+
+  attachChart = el => {
+    if (!el || el === this._chartEl) return;
+    this._chartEl = el;
+    if (this._ro) this._ro.disconnect();
+    this._ro = new ResizeObserver(es => {
+      const w = es[0].contentRect.width;
+      if (w > 0 && Math.abs(w - this.state.chartW) > 0.5) this.setState({ chartW: w });
+    });
+    this._ro.observe(el);
+    if (el.clientWidth > 0 && Math.abs(el.clientWidth - this.state.chartW) > 0.5) this.setState({ chartW: el.clientWidth });
+  };
+
+  componentWillUnmount() { if (this._ro) this._ro.disconnect(); }
+
+  componentDidMount() {
+    try {
+      const raw = localStorage.getItem('uk-company-tax-v1');
+      if (raw) {
+        const p = JSON.parse(raw) || {};
+        ['revenue','expenses','pension','otherIncome','salary','dividends','targetNet'].forEach(k => {
+          if (typeof p[k] !== 'number' || !isFinite(p[k])) delete p[k];
+        });
+        ['A','B'].forEach(k => {
+          const sc = p[k];
+          if (sc && Object.keys(sc).some(j => typeof sc[j] === 'number' && !isFinite(sc[j]))) p[k] = null;
+        });
+        this.setState(p);
+      }
+    } catch (e) {}
+  }
+  persist(patch) {
+    this.setState(patch, () => {
+      try { localStorage.setItem('uk-company-tax-v1', JSON.stringify(this.state)); } catch (e) {}
+    });
+  }
+
+  // ---------- tax engine ----------
+  ct(profit, r) {
+    if (profit <= 0) return 0;
+    if (profit <= r.ctLo) return profit * r.ctSmall;
+    if (profit >= r.ctHi) return profit * r.ctMain;
+    return profit * r.ctMain - (r.ctHi - profit) * r.mr;
+  }
+  eeNI(salary, r) {
+    return Math.max(0, Math.min(salary, r.niUEL) - r.niPT) * r.niMain + Math.max(0, salary - r.niUEL) * r.niUp;
+  }
+  erNI(salary, r) { return Math.max(0, salary - r.erST) * r.erRate; }
+  sl(salary, other, divs, r, on) {
+    if (!on) return 0;
+    const unearned = other + divs;
+    const income = salary + (unearned > r.slUnearned ? unearned : 0);
+    return Math.max(0, Math.floor(income) - r.slThr) * r.slRate;
+  }
+
+  income(salary, other, divs, r) {
+    const nonSav = salary + other, total = nonSav + divs;
+    const pa = Math.max(0, r.pa - Math.max(0, (total - 100000) / 2));
+    const paNS = Math.min(nonSav, pa), paDiv = pa - paNS;
+    const tNS = nonSav - paNS;
+    const basicCap = r.basic, higherCap = Math.max(r.addThr - pa, basicCap);
+    const b = Math.min(tNS, basicCap);
+    const h = Math.min(Math.max(tNS - basicCap, 0), higherCap - basicCap);
+    const a = Math.max(tNS - higherCap, 0);
+    const itNS = b * r.rB + h * r.rH + a * r.rA;
+
+    let tDiv = Math.max(divs - paDiv, 0), cursor = tNS;
+    const allow = Math.min(tDiv, r.divAllow);
+    cursor += allow; let rem = tDiv - allow;
+    const dB = Math.min(rem, Math.max(basicCap - cursor, 0)); cursor += dB; rem -= dB;
+    const dH = Math.min(rem, Math.max(higherCap - cursor, 0)); cursor += dH; rem -= dH;
+    const divTax = dB * r.dB + dH * r.dH + rem * r.dA;
+    return { itNS, divTax, pa, bands:{dB, dH, dA:rem, allow} };
+  }
+
+  model(s) {
+    const r = R[s.year];
+    const erNI = this.erNI(s.salary, r);
+    const profit = s.revenue - s.expenses - s.salary - erNI - s.pension;
+    const ct = this.ct(profit, r);
+    const distributable = profit - ct;
+    const divs = s.dividends;
+    const t = this.income(s.salary, s.otherIncome, divs, r);
+    const base = this.income(0, s.otherIncome, 0, r);
+    const eeNI = this.eeNI(s.salary, r);
+    const itOnSalary = t.itNS - base.itNS;
+    const personalTax = itOnSalary + eeNI + t.divTax;
+    const on = !!s.studentLoan;
+    const slBase = this.sl(0, s.otherIncome, 0, r, on);
+    const slDue = Math.max(this.sl(s.salary, s.otherIncome, divs, r, on) - slBase, 0);
+    const slOnSalary = Math.min(Math.max(this.sl(s.salary, s.otherIncome, 0, r, on) - slBase, 0), slDue);
+    const slOnDivs = Math.max(slDue - slOnSalary, 0);
+    const net = s.salary + divs - personalTax - slDue;
+    const totalTax = ct + erNI + personalTax;
+    return { r, erNI, profit, ct, distributable, divs, eeNI, itOnSalary, divTax:t.divTax,
+      personalTax, slDue, slOnSalary, slOnDivs, net, totalTax, retained: distributable - divs, bands:t.bands, pa:t.pa,
+      netSalary: s.salary - eeNI - itOnSalary - slOnSalary, netDivs: divs - t.divTax - slOnDivs };
+  }
+
+  solveDividends(s, target) {
+    let lo = 0, hi = 2000000;
+    for (let i = 0; i < 70; i++) {
+      const mid = (lo + hi) / 2;
+      const n = this.model({ ...s, dividends: mid }).net;
+      if (n < target) lo = mid; else hi = mid;
+    }
+    return Math.round((lo + hi) / 2);
+  }
+
+  resolved() {
+    const s = this.state;
+    if (s.mode === 'manual') return { s, m: this.model(s) };
+    const divs = this.solveDividends(s, Math.max(0, s.targetNet - 0));
+    const s2 = { ...s, dividends: divs };
+    return { s: s2, m: this.model(s2) };
+  }
+
+  // ---------- sensitivity ----------
+  policyModel(base) {
+    const s = { ...base };
+    if (this.state.policy === 'max') {
+      const m0 = this.model({ ...s, dividends: 0 });
+      s.dividends = Math.max(m0.distributable, 0);
+    }
+    const m = this.model(s);
+    const pool = Math.max(s.revenue - s.expenses - m.retained, 1);
+    return { s, m, pool, net:m.net, rate:m.net / pool, tax:m.totalTax, taxRate:m.totalTax / pool, pensionRate:s.pension / pool, slRate:m.slDue / pool };
+  }
+
+  metricMeta() {
+    const M = {
+      net: { label:'net in pocket', fmt:f0, dfmt:d => (d >= 0 ? '+' : '−') + f0(Math.abs(d)), up:1, key:'net' },
+      rate: { label:'take-home rate', fmt:v => (v * 100).toFixed(1) + '%', dfmt:d => (d >= 0 ? '+' : '−') + Math.abs(d * 100).toFixed(1) + 'pp', up:1, key:'rate' },
+      taxRate: { label:'effective tax rate', fmt:v => (v * 100).toFixed(1) + '%', dfmt:d => (d >= 0 ? '+' : '−') + Math.abs(d * 100).toFixed(1) + 'pp', up:-1, key:'taxRate' },
+      tax: { label:'total tax & NI', fmt:f0, dfmt:d => (d >= 0 ? '+' : '−') + f0(Math.abs(d)), up:-1, key:'tax' }
+    };
+    return M[this.state.metric] || M.net;
+  }
+
+  tornadoData(base, mm) {
+    const swing = this.state.swing / 100;
+    const steps = { revenue:20000, expenses:5000, salary:5000, pension:10000, otherIncome:10000 };
+    const vars = [['revenue', 'Client revenue'], ['expenses', 'Business expenses'], ['salary', 'Director’s salary'], ['pension', 'Employer pension'], ['otherIncome', 'Other income']];
+    const b = this.policyModel(base)[mm.key];
+    const rows = vars.map(([k, label]) => {
+      const v = base[k], d = v > 0 ? v * swing : steps[k];
+      const lo = Math.max(0, v - d), hi = v + d;
+      const oLo = this.policyModel({ ...base, [k]:lo })[mm.key];
+      const oHi = this.policyModel({ ...base, [k]:hi })[mm.key];
+      return { k, label, lo, hi, dLo:oLo - b, dHi:oHi - b, range:f0(lo) + ' – ' + f0(hi) };
+    });
+    const maxAbs = Math.max(...rows.map(r => Math.max(Math.abs(r.dLo), Math.abs(r.dHi))), 1e-9);
+    rows.sort((a, b2) => Math.max(Math.abs(b2.dLo), Math.abs(b2.dHi)) - Math.max(Math.abs(a.dLo), Math.abs(a.dHi)));
+    const zeroText = mm.dfmt(0).replace('+', '').replace('−', '');
+    const hue = d => mm.dfmt(d).replace('+', '').replace('−', '') === zeroText ? '#a9aeb6' : (d * mm.up) > 0 ? C.you : C.hmrc;
+    const bar = (d, side) => {
+      const w = Math.min(Math.abs(d) / maxAbs * 46, 46);
+      return `position:absolute;top:5px;bottom:5px;${side === 'lo' ? 'right:50%' : 'left:50%'};width:${w.toFixed(2)}%;background:${hue(d)};border-radius:${side === 'lo' ? '3px 0 0 3px' : '0 3px 3px 0'};opacity:.85`;
+    };
+    const lab = (d, align) => `font:500 11px 'IBM Plex Mono',monospace;text-align:${align};color:${hue(d)};white-space:nowrap`;
+    return rows.map(r => ({
+      label:r.label, range:r.range,
+      lowBar:bar(r.dLo, 'lo'), highBar:bar(r.dHi, 'hi'),
+      lowText:mm.dfmt(r.dLo), highText:mm.dfmt(r.dHi),
+      lowLabel:lab(r.dLo, 'right'), highLabel:lab(r.dHi, 'left')
+    }));
+  }
+
+  sweepData(base, mm) {
+    const k = this.state.sweepVar;
+    const spans = {
+      revenue:[0, Math.max(300000, base.revenue * 2)], expenses:[0, Math.max(60000, base.expenses * 2)],
+      salary:[0, 60000], pension:[0, 60000], otherIncome:[0, 100000]
+    };
+    const [x0, x1] = spans[k];
+    const N = 40, pts = [];
+    for (let i = 0; i <= N; i++) {
+      const x = x0 + (x1 - x0) * i / N;
+      const o = this.policyModel({ ...base, [k]:x });
+      pts.push({ x, p:o[mm.key], t:o.taxRate });
+    }
+    const L = 46, Rr = 564, T = 16, B = 216;
+    const pv = pts.map(p => p.p), tv = pts.map(p => p.t);
+    let pMin = Math.min(...pv), pMax = Math.max(...pv);
+    if (pMax - pMin < 1e-9) { pMax = pMin + 1; }
+    const pad = (pMax - pMin) * 0.08; pMin -= pad; pMax += pad;
+    let tMin = Math.min(...tv), tMax = Math.max(...tv);
+    if (tMax - tMin < 1e-9) { tMax = tMin + 0.01; }
+    const tp = (tMax - tMin) * 0.08; tMin -= tp; tMax += tp;
+    const sx = v => L + (v - x0) / (x1 - x0 || 1) * (Rr - L);
+    const sy = v => B - (v - pMin) / (pMax - pMin) * (B - T);
+    const sy2 = v => B - (v - tMin) / (tMax - tMin) * (B - T);
+    const primary = pts.map(p => `${sx(p.x).toFixed(1)},${sy(p.p).toFixed(1)}`).join(' ');
+    const secondary = pts.map(p => `${sx(p.x).toFixed(1)},${sy2(p.t).toFixed(1)}`).join(' ');
+    const grid = [], right = [];
+    for (let i = 0; i <= 4; i++) {
+      const gv = pMin + (pMax - pMin) * i / 4, y = sy(gv);
+      grid.push({ y:y.toFixed(1), label:mm.fmt(gv),
+        style:`position:absolute;left:0;top:${y.toFixed(1)}px;transform:translateY(-50%);width:42px;text-align:right;font:400 9.5px 'IBM Plex Mono',monospace;color:#a9aeb6` });
+      const tvv = tMin + (tMax - tMin) * i / 4, y2 = sy2(tvv);
+      right.push({ label:(tvv * 100).toFixed(0) + '%',
+        style:`position:absolute;left:570px;top:${y2.toFixed(1)}px;transform:translateY(-50%);font:400 9.5px 'IBM Plex Mono',monospace;color:#cfa08c` });
+    }
+    const xt = [];
+    for (let i = 0; i <= 4; i++) {
+      const xv = x0 + (x1 - x0) * i / 4;
+      xt.push({ label:'£' + Math.round(xv / 1000) + 'k',
+        style:`position:absolute;left:${sx(xv).toFixed(1)}px;top:222px;transform:translateX(-50%);font:400 9.5px 'IBM Plex Mono',monospace;color:#a9aeb6` });
+    }
+    const cur = Math.min(Math.max(base[k], x0), x1);
+    const oCur = this.policyModel({ ...base, [k]:cur });
+    const mx = sx(cur), my = sy(oCur[mm.key]);
+    const flip = mx > 440;
+    return {
+      primary, secondary, grid, right, xt, markerX:mx.toFixed(1), markerY:my.toFixed(1),
+      markerLabel:'now ' + f0(cur) + ' → ' + mm.fmt(oCur[mm.key]),
+      markerLabelStyle:`position:absolute;left:${(flip ? mx - 8 : mx + 8).toFixed(1)}px;top:0;${flip ? 'transform:translateX(-100%);' : ''}font:500 10.5px 'IBM Plex Mono',monospace;color:#14161a;white-space:nowrap;background:#fff;padding:1px 3px`,
+      label:{ revenue:'Client revenue', expenses:'Business expenses', salary:'Director’s salary', pension:'Employer pension', otherIncome:'Other personal income' }[k]
+    };
+  }
+
+  heatData(base, mm) {
+    const sals = [0, 5000, 6708, 12570, 20000, 30000, 40000, 50270];
+    const pens = [0, 5000, 10000, 20000, 30000, 40000, 60000];
+    const grid = sals.map(sa => pens.map(pe => this.policyModel({ ...base, salary:sa, pension:pe })[mm.key]));
+    const flat = grid.flat();
+    const lo = Math.min(...flat), hi = Math.max(...flat);
+    const mix = t => {
+      const a = [244, 239, 232], b = [13, 107, 94];
+      return 'rgb(' + a.map((c, i) => Math.round(c + (b[i] - c) * t)).join(',') + ')';
+    };
+    const rows = sals.map((sa, i) => ({
+      label:f0(sa), value:sa,
+      cells:pens.map((pe, j) => {
+        const v = grid[i][j];
+        const norm = hi - lo < 1e-9 ? 0.5 : (v - lo) / (hi - lo);
+        const t = mm.up > 0 ? norm : 1 - norm;
+        const cur = Math.abs(base.salary - sa) < 1 && Math.abs(base.pension - pe) < 1;
+        return {
+          text:mm.fmt(v),
+          apply:() => this.persist({ salary:sa, pension:pe }),
+          style:`border:${cur ? '2px solid #14161a' : '1px solid rgba(0,0,0,.05)'};background:${mix(t)};color:${t > 0.55 ? '#fff' : '#14161a'};border-radius:4px;padding:9px 0;font:500 11.5px 'IBM Plex Mono',monospace;cursor:pointer;text-align:center`
+        };
+      })
+    }));
+    return { rows, cols:pens.map(p => ({ label:p === 0 ? 'none' : f0(p) })), lo, hi, mix };
+  }
+
+  // ---------- sankey ----------
+  sankey(s, m, W) {
+    const H = 400, TOP = 26, nodeW = 13, gap = 9, VB = TOP + H + 14;
+    const step = Math.max((W - nodeW - 124) / 4, 96);
+    const cols = [0, 1, 2, 3, 4].map(i => Math.round(i * step));
+    const rev = Math.max(s.revenue, 1);
+    const items = [
+      ['expenses', 'Expenses', s.expenses, C.cost, 1, 0],
+      ['pension', 'Pension', s.pension, C.pens, 1, 0],
+      ['erni', 'Employer NI', m.erNI, C.hmrc, 1, 0],
+      ['salary', 'Gross salary', s.salary, C.ink, 1, 1],
+      ['profit', 'Profit before CT', Math.max(m.profit, 0), C.keep, 1, 1],
+      ['it', 'Income tax', m.itOnSalary, C.hmrc, 2, 0],
+      ['eeni', "Employee's NI", m.eeNI, C.hmrc, 2, 0],
+      ['slsal', 'Student loan', m.slOnSalary, C.sl, 2, 0],
+      ['netsal', 'Net salary', Math.max(m.netSalary, 0), C.you, 2, 0],
+      ['ct', 'Corporation tax', m.ct, C.hmrc, 2, 0],
+      ['dist', 'Distributable', Math.max(m.distributable, 0), C.keep, 2, 1],
+      ['divs', 'Dividends', Math.max(m.divs, 0), C.ink, 3, 1],
+      ['retain', 'Left in company', Math.max(m.retained, 0), C.keep, 3, 0],
+      ['divtax', 'Dividend tax', m.divTax, C.hmrc, 4, 0],
+      ['sldiv', 'Student loan', m.slOnDivs, C.sl, 4, 0],
+      ['netdiv', 'Net dividends', Math.max(m.netDivs, 0), C.you, 4, 0]
+    ];
+    const linkDefs = [
+      ['revenue','expenses'],['revenue','pension'],['revenue','erni'],['revenue','salary'],['revenue','profit'],
+      ['salary','it'],['salary','eeni'],['salary','slsal'],['salary','netsal'],
+      ['profit','ct'],['profit','dist'],
+      ['dist','divs'],['dist','retain'],
+      ['divs','divtax'],['divs','sldiv'],['divs','netdiv']
+    ];
+    const scale = (H - gap * 4) / rev;
+    const N = {};
+    N.revenue = { id:'revenue', label:'Revenue', value:rev, fill:C.ink, col:0, terminal:0 };
+    items.forEach(([id, label, value, fill, col, cont]) => {
+      N[id] = { id, label, value: Math.max(value, 0), fill, col, terminal: cont ? 0 : 1 };
+    });
+    // stack per column, in declaration order
+    const byCol = [[], [], [], [], []];
+    byCol[0].push(N.revenue);
+    items.forEach(([id]) => byCol[N[id].col].push(N[id]));
+    byCol.forEach(list => {
+      let y = TOP;
+      list.forEach(n => {
+        n.h = Math.max(n.value * scale, n.value > 0 ? 1.5 : 0);
+        n.x = cols[n.col]; n.y = y; n.out = 0; n.in = 0;
+        y += n.h + gap;
+      });
+    });
+    const nodes = [], links = [];
+    linkDefs.forEach(([a, b]) => {
+      const s0 = N[a], t0 = N[b];
+      if (!s0 || !t0 || t0.value <= 0) return;
+      const h = Math.max(t0.value * scale, 1.5);
+      const y0 = s0.y + s0.out, y1 = t0.y;
+      s0.out += h;
+      const x0 = s0.x + nodeW, x1 = t0.x, mx = (x0 + x1) / 2;
+      links.push({
+        d: `M${x0},${y0} C${mx},${y0} ${mx},${y1} ${x1},${y1} L${x1},${y1 + h} C${mx},${y1 + h} ${mx},${y0 + h} ${x0},${y0 + h} Z`,
+        fill: t0.fill, op: 0.22
+      });
+    });
+    const LH = 30;
+    byCol.forEach(list => {
+      const placed = list.filter(n => n.value > 0)
+        .map(n => ({ n, top: Math.max(n.y + (n.h > 34 ? 3 : n.h / 2 - LH / 2), TOP - 12) }));
+      let prevBottom = -Infinity;
+      placed.forEach(p => {
+        if (p.top < prevBottom + 3) p.top = prevBottom + 3;
+        prevBottom = p.top + LH;
+      });
+      placed.forEach(({ n, top }) => {
+        const last = n.col === 4;
+        nodes.push({
+          x:n.x, y:n.y, h:n.h, fill:n.fill, label:n.label, amount:f0(n.value),
+          lstyle:`position:absolute;${last ? 'right:0;text-align:right;' : 'left:' + (n.x + nodeW + 8) + 'px;'}top:${top.toFixed(1)}px;white-space:nowrap`,
+          amtStyle:`font-family:'IBM Plex Mono',monospace;font-size:11.5px;line-height:1.3;color:${n.fill === C.ink ? '#6b717a' : n.fill}`
+        });
+      });
+    });
+    const stageLabels = ['REVENUE', 'THE COMPANY SPENDS', 'TAXED', 'DECLARED', 'YOU RECEIVE']
+      .map((t, i) => ({ t, style:`position:absolute;${i === 4 ? 'right:0;text-align:right;' : 'left:' + cols[i] + 'px;'}top:0;font:400 9.5px 'IBM Plex Mono',monospace;letter-spacing:.09em;color:#a9aeb6;white-space:nowrap` }));
+    return { nodes, links, stageLabels, vb:`0 0 ${W} ${VB}`, vbH:VB };
+  }
+
+  waterfall(s, m, W) {
+    const steps = [
+      ['Revenue', s.revenue, 'total', C.ink, 'invoiced'],
+      ['Expenses', -s.expenses, 'd', C.cost, 'running costs'],
+      ['Pension', -s.pension, 'd', C.pens, 'employer contribution'],
+      ['Employer NI', -m.erNI, 'd', C.hmrc, '15% over £5,000'],
+      ['Corp. tax', -m.ct, 'd', C.hmrc, m.profit > 50000 ? 'marginal relief' : '19%'],
+      ['PAYE + NI', -(m.itOnSalary + m.eeNI), 'd', C.hmrc, 'on your salary'],
+      ['Dividend tax', -m.divTax, 'd', C.hmrc, 'self-assessment'],
+      ['Student loan', -m.slDue, 'd', C.sl, 'Plan 2, 9%'],
+      ['Left in co.', -Math.max(m.retained, 0), 'd', C.keep, 'retained'],
+      ['In your pocket', 0, 'total', C.you, 'net']
+    ].filter((st, i, a) => st[2] === 'total' || Math.round(-st[1]) > 0);
+    const top = 28, H = 300, VB = top + H + 52, AX = 42, maxV = Math.max(s.revenue, 1);
+    const scale = H / maxV;
+    const yOf = v => top + (H - v * scale);
+    const colw = (W - AX) / steps.length;
+    const bw = Math.min(84, colw * 0.68), gapx = colw - bw;
+    const bars = [], lines = [];
+    let run = 0;
+    steps.forEach(([label, delta, kind, fill, sub], i) => {
+      const x = AX + i * colw + gapx / 2;
+      let val, yTop;
+      if (i === 0) { val = s.revenue; run = val; yTop = yOf(val); }
+      else if (kind === 'total') { val = Math.max(run, 0); yTop = yOf(val); }
+      else { val = Math.max(-delta, 0); yTop = yOf(run); run = Math.max(run - val, 0); }
+      const h = Math.max(val * scale, 1.5);
+      bars.push({
+        x, y:yTop, w:bw, h, fill,
+        amount:(kind === 'total' ? '' : '−') + f0(val), label, sub,
+        valStyle:`position:absolute;left:${(x + bw / 2).toFixed(1)}px;top:${(yTop - 17).toFixed(1)}px;transform:translateX(-50%);font:600 11px 'IBM Plex Mono',monospace;color:${fill};white-space:nowrap`,
+        labStyle:`position:absolute;left:${(x + bw / 2).toFixed(1)}px;top:${(top + H + 10).toFixed(1)}px;transform:translateX(-50%);width:${colw.toFixed(1)}px;text-align:center`
+      });
+      if (i < steps.length - 1) lines.push({ x1:x + bw, x2:x + colw, y:yOf(run) });
+    });
+    const grid = [];
+    for (let i = 0; i <= 4; i++) {
+      const v = maxV * i / 4, y = yOf(v);
+      grid.push({ y, label: i === 0 ? '£0' : '£' + Math.round(v / 1000) + 'k',
+        style:`position:absolute;left:0;top:${y.toFixed(1)}px;transform:translateY(-50%);font:400 10px 'IBM Plex Mono',monospace;color:#a9aeb6` });
+    }
+    return { wfBars: bars, wfGrid: grid, wfLines: lines, vb:`0 0 ${W} ${VB}`, vbH:VB, gridX2:W - 4 };
+  }
+
+  renderVals() {
+    const { s, m } = this.resolved();
+    const st = this.state, r = m.r;
+    const rev = Math.max(s.revenue, 1);
+    const hmrcTotal = m.totalTax;
+
+    const seg = (on) => `padding:6px 11px;border:0;background:${on ? C.ink : 'transparent'};color:${on ? '#f6f5f2' : '#565c66'};font:500 11.5px 'Instrument Sans',sans-serif;cursor:pointer`;
+    const chipBtn = (on) => `padding:5px 8px;border:1px solid ${on ? C.you : '#dcdad3'};background:${on ? '#e6f1ee' : '#fff'};color:${on ? C.you : '#565c66'};border-radius:6px;font:500 11px 'Instrument Sans',sans-serif;cursor:pointer`;
+
+    const CW = Math.max(st.chartW, 320);
+    const sank = this.sankey(s, m, CW);
+    const wf = this.waterfall(s, m, CW);
+
+    const bucketDefs = [
+      { label:'You, now', amount:m.net, colour:C.you, rows:[['Net salary', m.netSalary], ['Net dividends', m.netDivs]] },
+      { label:'HMRC', amount:hmrcTotal, colour:C.hmrc, rows:[['Corporation tax', m.ct], ['Employer NI', m.erNI], ['PAYE + NI', m.itOnSalary + m.eeNI], ['Dividend tax', m.divTax]] },
+      ...(m.slDue > 0 ? [{ label:'Student loan', amount:m.slDue, colour:C.sl, rows:[['Plan 2 repayment', m.slOnSalary + m.slOnDivs]] }] : []),
+      { label:'Trading costs', amount:s.expenses, colour:C.cost, rows:[['Business expenses', s.expenses]] },
+      { label:'You, later', amount:s.pension, colour:C.pens, rows:[['Pension pot', s.pension]] },
+      { label:'In the company', amount:Math.max(m.retained, 0), colour:C.keep, rows:[['Retained profit', Math.max(m.retained, 0)]] }
+    ];
+    const buckets = bucketDefs.map(b => ({
+      label:b.label, amount:f0(b.amount), pct:pct(b.amount, rev),
+      barStyle:`flex:${Math.max(b.amount, 0.0001)} 0 0;background:${b.colour};display:flex;align-items:center;justify-content:center;min-width:0;overflow:hidden`,
+      cardStyle:`border:1px solid #e3e1dc;border-top:2px solid ${b.colour};border-radius:8px;padding:12px 12px 13px;background:#fdfcfa`,
+      dot:`width:9px;height:9px;border-radius:2px;background:${b.colour};display:inline-block`,
+      rows:b.rows.map(([k, v]) => ({ k, v:f0(v) }))
+    }));
+
+    // months: company year 1 Nov → 31 Oct
+    const startYear = parseInt(st.year.slice(0, 4), 10);
+    const names = ['Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'];
+    const monthYear = i => (i <= 1 ? startYear : startYear + 1);
+    const saPrior = m.divTax + m.slOnDivs;
+    const poa = saPrior / 2;
+    const payeQ = (m.itOnSalary + m.eeNI + m.erNI + m.slOnSalary) / 4;
+    const hmrcByMonth = Array(12).fill(0);
+    const idx = n => names.indexOf(n);
+    hmrcByMonth[idx('Jan')] += payeQ + saPrior + poa;
+    hmrcByMonth[idx('Apr')] += payeQ;
+    hmrcByMonth[idx('Jul')] += payeQ + poa;
+    hmrcByMonth[idx('Oct')] += payeQ;
+    hmrcByMonth[idx('Aug')] += m.ct;
+    const youMonthly = m.net / 12;
+    const maxBar = Math.max(...hmrcByMonth.map((h, i) => h + youMonthly), 1);
+    const months = names.map((n, i) => {
+      const h = hmrcByMonth[i], tot = h + youMonthly;
+      return {
+        label:n, year:"’" + String(monthYear(i)).slice(2), total:f0(tot),
+        hmrcStyle:`height:${(h / maxBar) * 150}px;background:${C.hmrc};border-radius:3px 3px 0 0;min-height:${h > 0 ? 2 : 0}px`,
+        youStyle:`height:${(youMonthly / maxBar) * 150}px;background:${C.you};border-radius:${h > 0 ? '0 0 3px 3px' : '3px'}`
+      };
+    });
+
+    const chip = (who) => `font:500 10px 'IBM Plex Mono',monospace;letter-spacing:.04em;padding:3px 7px;border-radius:999px;background:${who === 'COMPANY' ? '#eef2f7' : '#f3ece8'};color:${who === 'COMPANY' ? C.keep : C.hmrc}`;
+    const dueDates = [
+      { date:'22 Jan ' + (startYear + 1), title:'PAYE / NIC — quarter to 5 Jan', note:'Quarterly because employer NI is under £1,500 a month', amount:f0(payeQ), payer:'COMPANY' },
+      { date:'31 Jan ' + (startYear + 1), title:'Self assessment balancing payment + payment on account', note:'Dividend tax' + (m.slOnDivs > 0 ? ' and student loan on dividends' : '') + ' for ' + st.year + ', plus 50% on account for next year', amount:f0(saPrior + poa), payer:'YOU' },
+      { date:'22 Apr ' + (startYear + 1), title:'PAYE / NIC — quarter to 5 Apr', note:'Closes the ' + st.year + ' payroll year; P60 due 31 May', amount:f0(payeQ), payer:'COMPANY' },
+      { date:'31 Jul ' + (startYear + 1), title:'Second payment on account', note:'50% of the prior year personal liability', amount:f0(poa), payer:'YOU' },
+      { date:'1 Aug ' + (startYear + 1), title:'Corporation tax — year ended 31 Oct ' + startYear, note:'Nine months and one day after the accounting period ends', amount:f0(m.ct), payer:'COMPANY' },
+      { date:'22 Oct ' + (startYear + 1), title:'PAYE / NIC — quarter to 5 Oct', note:'Quarterly instalment', amount:f0(payeQ), payer:'COMPANY' },
+      { date:'31 Oct ' + (startYear + 1), title:'CT600 and accounts filing', note:'Twelve months after the period end — filing only, no payment', amount:'—', payer:'COMPANY' }
+    ].map(d => ({ ...d, colour: d.payer === 'YOU' ? C.hmrc : '#14161a', chip: chip(d.payer) }));
+
+    const row = (k, v, sub, kind) => ({
+      k, v, sub: sub || '',
+      rowStyle:`display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid ${kind === 'strong' ? '#e3e1dc' : '#f4f2ee'}`,
+      kStyle:`font-size:12.5px;font-weight:${kind === 'strong' ? 600 : 500};color:${kind === 'tax' ? C.hmrc : '#14161a'}`,
+      vStyle:`font-family:'IBM Plex Mono',monospace;font-size:${kind === 'strong' ? '15px' : '13px'};font-weight:500;white-space:nowrap;color:${kind === 'tax' ? C.hmrc : '#14161a'}`
+    });
+    const splitRows = [
+      row('Gross salary', f0(s.salary), s.salary === 12570 ? 'At the personal allowance — no income tax, full NI credit' : 'Monthly gross ' + f2(s.salary / 12), 'strong'),
+      row('Dividends declared', f0(m.divs), 'From ' + f0(Math.max(m.distributable, 0)) + ' distributable', 'strong'),
+      row('Employer NI', '−' + f0(m.erNI), 'Company pays, 15% above £5,000', 'tax'),
+      row('Corporation tax', '−' + f0(m.ct), r.ctNote.split(',')[0].replace('Corporation tax ', 'Effective rate ' + pct(m.ct, Math.max(m.profit, 1))), 'tax'),
+      row('Income tax on salary', '−' + f0(m.itOnSalary), 'Collected monthly through PAYE', 'tax'),
+      row("Employee's NI", '−' + f0(m.eeNI), '8% between £12,570 and £50,270', 'tax'),
+      row('Dividend tax', '−' + f0(m.divTax), 'Paid by you on self assessment', 'tax'),
+      ...(m.slDue > 0 ? [row('Student loan (Plan 2)', '−' + f0(m.slDue), '9% above ' + f0(r.slThr) + ' — ' + f0(m.slOnSalary) + ' via PAYE, ' + f0(m.slOnDivs) + ' on self assessment', 'tax')] : []),
+      row('Net in your pocket', f0(m.net), pct(m.net, rev) + ' of revenue reaches you', 'strong')
+    ];
+
+    // optimiser
+    const cands = [0, 5000, 12570, s.salary, 50270].filter((v, i, a) => a.indexOf(v) === i).sort((a, b) => a - b);
+    const target = m.net;
+    const opts = cands.map(sal => {
+      const base = { ...s, salary: sal };
+      const d = this.solveDividends(base, target);
+      const mm = this.model({ ...base, dividends: d });
+      return { sal, d, tax: mm.totalTax, feasible: mm.retained >= -1, retained: mm.retained };
+    }).sort((a, b) => a.tax - b.tax);
+    const best = opts[0].tax;
+    const optRows = opts.slice(0, 4).map(o => {
+      const isCur = Math.abs(o.sal - s.salary) < 1;
+      const delta = o.tax - best;
+      return {
+        salary:f0(o.sal), dividends:f0(o.d), tax:f0(o.tax),
+        delta: delta < 1 ? 'best' : '+' + f0(delta),
+        deltaColour: delta < 1 ? C.you : C.hmrc,
+        note: !o.feasible ? 'not covered by profit' : (o.sal === 0 ? 'no NI record' : o.sal <= 5000 ? 'below NI threshold' : o.sal <= 12570 ? 'qualifying year, no income tax' : 'higher NI, lower CT'),
+        style:`border:1px solid ${isCur ? C.you : '#eae8e3'};background:${isCur ? '#f3f8f6' : '#fdfcfa'};border-radius:8px;padding:10px 11px 11px;margin-bottom:7px`,
+        btn:`margin-top:8px;width:100%;padding:5px 0;border:1px solid ${isCur ? 'transparent' : '#dcdad3'};background:${isCur ? '#e0ece8' : '#fff'};color:${isCur ? C.you : '#14161a'};border-radius:6px;font:500 11px 'Instrument Sans',sans-serif;cursor:${isCur ? 'default' : 'pointer'}`,
+        apply: () => this.persist({ salary: o.sal, mode: st.mode })
+      };
+    });
+
+    const snap = (label) => {
+      const sc = this.state[label];
+      if (!sc) return null;
+      const mm = this.model(sc);
+      return { sc, mm };
+    };
+    const A = snap('A'), B = snap('B');
+    const cell = (x, fn) => x ? fn(x) : '—';
+    const compareRows = [
+      { k:'Revenue', a:cell(A, x => f0(x.sc.revenue)), b:cell(B, x => f0(x.sc.revenue)) },
+      { k:'Salary', a:cell(A, x => f0(x.sc.salary)), b:cell(B, x => f0(x.sc.salary)) },
+      { k:'Dividends', a:cell(A, x => f0(x.sc.dividends)), b:cell(B, x => f0(x.sc.dividends)) },
+      { k:'Pension', a:cell(A, x => f0(x.sc.pension)), b:cell(B, x => f0(x.sc.pension)) },
+      { k:'Total tax', a:cell(A, x => f0(x.mm.totalTax)), b:cell(B, x => f0(x.mm.totalTax)), colour:C.hmrc },
+      { k:'Net to you', a:cell(A, x => f0(x.mm.net)), b:cell(B, x => f0(x.mm.net)), colour:C.you },
+      { k:'Effective rate', a:cell(A, x => pct(x.mm.totalTax, x.sc.revenue)), b:cell(B, x => pct(x.mm.totalTax, x.sc.revenue)) }
+    ].map(c => ({ ...c, aColour:c.colour || '#14161a', bColour:c.colour || '#14161a' }));
+
+    const mm = this.metricMeta();
+    const sBase = { ...s, dividends: Math.round(m.divs) };
+    const cur = this.policyModel(sBase);
+    const tornado = this.tornadoData(sBase, mm);
+    const sw = this.sweepData(sBase, mm);
+    const heat = this.heatData(sBase, mm);
+    const navS = on => `padding:0 0 12px;border:0;background:transparent;border-bottom:2px solid ${on ? C.ink : 'transparent'};color:${on ? C.ink : '#767c86'};font:${on ? 600 : 500} 13px 'Instrument Sans',sans-serif;cursor:pointer;margin-bottom:-1px`;
+
+    const overlay = h => `position:absolute;left:0;top:0;width:100%;height:${h}px;pointer-events:none`;
+
+    const shortfall = m.retained < -1;
+    const infeasible = st.mode === 'target' && Math.abs(m.net - st.targetNet) > 5;
+
+    return {
+      // state passthrough for controls
+      revenue:st.revenue, expenses:st.expenses, pension:st.pension, otherIncome:st.otherIncome,
+      salary:st.salary, dividends:st.dividends, targetNet:st.targetNet,
+      isTarget:st.mode === 'target', isManual:st.mode === 'manual',
+      isSankey:st.flow === 'sankey', isWaterfall:st.flow === 'waterfall', isBuckets:st.flow === 'buckets',
+      nodes:sank.nodes, links:sank.links, stageLabels:sank.stageLabels,
+      chartRef:this.attachChart, sankeyOverlay:overlay(sank.vbH), wfOverlay:overlay(wf.vbH),
+      isModel:st.tab === 'model', isSens:st.tab === 'sens', isAssume:st.tab === 'assume',
+      goModel:() => this.persist({ tab:'model' }), goSens:() => this.persist({ tab:'sens' }), goAssume:() => this.persist({ tab:'assume' }),
+      setPolicyMax:() => this.persist({ policy:'max' }), setPolicyFixed:() => this.persist({ policy:'fixed' }),
+      setMetricNet:() => this.persist({ metric:'net' }), setMetricRate:() => this.persist({ metric:'rate' }),
+      setMetricTaxRate:() => this.persist({ metric:'taxRate' }), setMetricTax:() => this.persist({ metric:'tax' }),
+      sweepRevenue:() => this.persist({ sweepVar:'revenue' }), sweepExpenses:() => this.persist({ sweepVar:'expenses' }),
+      sweepSalary:() => this.persist({ sweepVar:'salary' }), sweepPension:() => this.persist({ sweepVar:'pension' }),
+      sweepOther:() => this.persist({ sweepVar:'otherIncome' }),
+      onSwing:e => this.persist({ swing:+e.target.value }), swing:st.swing,
+      tornado, sweepPrimary:sw.primary, sweepSecondary:sw.secondary, sweepGrid:sw.grid,
+      sweepRight:sw.right, sweepXTicks:sw.xt, markerX:sw.markerX, markerY:sw.markerY,
+      heatRows:heat.rows, heatCols:heat.cols,
+      vbSankey:sank.vb, vbWf:wf.vb, wfGridX2:wf.gridX2,
+      wfBars:wf.wfBars, wfGrid:wf.wfGrid, wfLines:wf.wfLines, buckets, months, dueDates, splitRows, optRows, compareRows,
+
+      setYear2526:() => this.persist({ year:'2025/26' }),
+      slOn:() => this.persist({ studentLoan:true }),
+      slOff:() => this.persist({ studentLoan:false }),
+      setYear2627:() => this.persist({ year:'2026/27' }),
+      setModeTarget:() => this.persist({ mode:'target' }),
+      setModeManual:() => this.persist({ mode:'manual', dividends: Math.round(m.divs) }),
+      setFlowSankey:() => this.persist({ flow:'sankey' }),
+      setFlowWaterfall:() => this.persist({ flow:'waterfall' }),
+      setFlowBuckets:() => this.persist({ flow:'buckets' }),
+      setSal5000:() => this.persist({ salary:5000 }),
+      setSal12570:() => this.persist({ salary:12570 }),
+      setSal50270:() => this.persist({ salary:50270 }),
+      onRevenue:e => this.persist({ revenue:+e.target.value }),
+      onExpenses:e => this.persist({ expenses:+e.target.value }),
+      onPension:e => this.persist({ pension:+e.target.value }),
+      onOther:e => this.persist({ otherIncome:+e.target.value }),
+      onSalary:e => this.persist({ salary:+e.target.value }),
+      onDividends:e => this.persist({ dividends:+e.target.value }),
+      onTargetNet:e => this.persist({ targetNet:+e.target.value }),
+      saveA:() => this.persist({ A:{ ...s, dividends:Math.round(m.divs) } }),
+      saveB:() => this.persist({ B:{ ...s, dividends:Math.round(m.divs) } }),
+
+      v: {
+        tabA:seg(st.year === '2025/26'), tabB:seg(st.year === '2026/27'),
+        modeA:seg(st.mode === 'target') + ";border-radius:7px;border:1px solid " + (st.mode === 'target' ? C.ink : '#dcdad3'),
+        modeB:seg(st.mode === 'manual') + ";border-radius:7px;border:1px solid " + (st.mode === 'manual' ? C.ink : '#dcdad3'),
+        fSankey:seg(st.flow === 'sankey'), fWaterfall:seg(st.flow === 'waterfall'), fBuckets:seg(st.flow === 'buckets'),
+        sal5000:chipBtn(st.salary === 5000), sal12570:chipBtn(st.salary === 12570), sal50270:chipBtn(st.salary === 50270),
+        saveBtn:`padding:4px 8px;border:1px solid #dcdad3;background:#fff;border-radius:6px;font:500 10.5px 'Instrument Sans',sans-serif;cursor:pointer`,
+        scenAHead:`font:600 11px 'IBM Plex Mono',monospace;text-align:right;color:${A ? C.ink : '#c9c6bf'}`,
+        scenBHead:`font:600 11px 'IBM Plex Mono',monospace;text-align:right;color:${B ? C.ink : '#c9c6bf'}`,
+        scenNote: A || B ? 'Snapshots hold every input, so you can flip a year or a salary and see the cost of the change.' : 'Set the model up, save it as A, change something, then save as B.',
+
+        revenue:f0(s.revenue), expenses:f0(s.expenses), pension:f0(s.pension), otherIncome:f0(s.otherIncome),
+        salary:f0(s.salary), dividends:f0(m.divs), targetNet:f0(st.targetNet),
+        netTake:f0(m.net), netPerMonth:f2(m.net / 12), totalTax:f0(hmrcTotal), totalTaxPct:pct(hmrcTotal, rev),
+        retained:f0(m.retained),
+        solveNote:'Suggested split: ' + f0(s.salary) + ' salary and ' + f0(m.divs) + ' of dividends. ' + (infeasible ? 'Revenue will not stretch this far.' : 'Dividend tax of ' + f0(m.divTax) + ' falls due on self assessment.'),
+        manualNote:'Distributable profit is ' + f0(Math.max(m.distributable, 0)) + '. ' + (shortfall ? 'You are declaring more than the company has.' : f0(Math.max(m.retained, 0)) + ' would stay in the company.'),
+        salaryNote:st.salary === 12570 ? 'The default: covered by the personal allowance, still earns a qualifying year for state pension. Costs the company ' + f0(m.erNI) + ' in employer NI, which is itself deductible.' : st.salary <= 5000 ? 'Below the £5,000 secondary threshold, so no employer NI — but under £6,500 you get no qualifying year.' : 'Employer NI ' + f0(m.erNI) + ', employee NI ' + f0(m.eeNI) + ', income tax ' + f0(m.itOnSalary) + '.',
+        assumeCT:r.ctNote, assumeDiv:r.divNote,
+        slOn:seg(st.studentLoan), slOff:seg(!st.studentLoan),
+        slNote: st.studentLoan
+          ? '9% of everything above ' + f0(r.slThr) + '. Dividends are unearned income: once they pass £2,000 the whole lot counts, not just salary — so ' + f0(m.slDue) + ' comes off this year.'
+          : 'Turn on if you hold a Plan 2 loan — an English or Welsh course started between 2012 and 2023.',
+        slLine: m.slDue > 0 ? 'after ' + f0(m.slDue) + ' of Plan 2 student loan' : '',
+        slLineStyle: m.slDue > 0 ? 'font-size:11.5px;color:#c9a8d4;margin-top:5px' : 'display:none',
+        slLegend: m.slDue > 0 ? 'display:flex;align-items:center;gap:7px;font-size:11.5px;color:#565c66' : 'display:none',
+        slAssume: st.studentLoan ? 'Plan 2 student loan repaying — 9% above ' + f0(r.slThr) + ', dividends included.' : 'No student loan repayment.',
+        rateSumNote: m.slDue > 0
+          ? 'Take-home rate + pension share + student loan (' + (cur.slRate * 100).toFixed(1) + '%) + effective tax rate = 100%. Pension share is ' + (cur.pensionRate * 100).toFixed(1) + '%.'
+          : 'Take-home rate + pension share + effective tax rate = 100%. Pension share is ' + (cur.pensionRate * 100).toFixed(1) + '%.',
+        navModel:navS(st.tab === 'model'), navSens:navS(st.tab === 'sens'), navAssume:navS(st.tab === 'assume'),
+        pool:f0(cur.pool), rateTake:(cur.rate * 100).toFixed(1) + '%', rateTax:(cur.taxRate * 100).toFixed(1) + '%',
+        ratePension:(cur.pensionRate * 100).toFixed(1) + '%',
+        rateTakeNote:'Of every pound that left the company for you or HMRC, ' + (cur.rate * 100).toFixed(0) + 'p reached your bank account' + (sBase.pension > 0 ? ' and ' + (cur.pensionRate * 100).toFixed(0) + 'p went to your pension.' : '.'),
+        polMax:seg(st.policy === 'max'), polFixed:seg(st.policy === 'fixed'),
+        mNet:seg(st.metric === 'net'), mRate:seg(st.metric === 'rate'), mTaxRate:seg(st.metric === 'taxRate'), mTax:seg(st.metric === 'tax'),
+        swRevenue:chipBtn(st.sweepVar === 'revenue'), swExpenses:chipBtn(st.sweepVar === 'expenses'), swSalary:chipBtn(st.sweepVar === 'salary'),
+        swPension:chipBtn(st.sweepVar === 'pension'), swOther:chipBtn(st.sweepVar === 'otherIncome'),
+        swing:st.swing + '%', metricLabel:mm.label, metricValue:mm.fmt(cur[mm.key]),
+        policyNote:st.policy === 'max' ? 'Dividends are set to clear the profit each time, so nothing is left in the company. That is the fair way to ask how much you could take home.' : 'Dividends stay at ' + f0(m.divs) + ' whatever else moves, so surplus profit builds up in the company instead.',
+        tornadoDown:'Worse for ' + mm.label, tornadoUp:'Better for ' + mm.label,
+        sweepSubtitle:sw.label + ' swept across its full range against ' + mm.label + '.',
+        markerLabel:sw.markerLabel, markerLabelStyle:sw.markerLabelStyle,
+        heatSubtitle:'Every combination of salary and employer pension, measured on ' + mm.label + '.',
+        heatWorst:mm.fmt(mm.up > 0 ? heat.lo : heat.hi), heatBest:mm.fmt(mm.up > 0 ? heat.hi : heat.lo),
+        heatRamp:'width:180px;height:10px;border-radius:5px;background:linear-gradient(to right,' + heat.mix(0) + ',' + heat.mix(0.5) + ',' + heat.mix(1) + ')',
+        heatNote:'Pension is not spendable now — it is tax-free on the way in but locked until 57.',
+        flowSubtitle:f0(s.revenue) + ' of revenue splits into ' + f0(m.net) + ' for you, ' + f0(hmrcTotal) + ' for HMRC, ' + f0(Math.max(m.retained, 0)) + ' retained.',
+        timelineSubtitle:'Company year 1 Nov ' + startYear + ' – 31 Oct ' + (startYear + 1) + '. Salary and dividends drawn evenly; HMRC payments land on their statutory dates.',
+        warnStyle: (shortfall || infeasible) ? 'margin-top:14px;padding:9px 11px;border-radius:8px;background:#3a2420;color:#f0c3ae;font-size:11.5px;line-height:1.45' : 'display:none',
+        warnText: shortfall ? 'Dividends exceed distributable reserves — that would be an unlawful distribution. Cut the dividend or the target.' : infeasible ? 'This target needs more revenue, lower expenses, or a smaller pension contribution. Best achievable is ' + f0(m.net) + '.' : ''
+      }
+    };
+  }
+}
+
+</script>
+</body>
+</html>
