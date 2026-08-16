@@ -23,9 +23,3 @@ Salary sacrifice, benefits in kind, the employment allowance, VAT, IR35 and off-
 ## Not advice
 
 This is a planning aid, not tax advice. Check the figures against current HMRC guidance and your accountant before acting on them.
-
-## Files
-
-- `UK Company Tax Calculator.dc.html` — the app. Open it directly in a browser.
-- `support.js` — the runtime it loads. Must sit alongside the HTML file.
-- `index.html` — redirect, so GitHub Pages serves the app at the repo root.
