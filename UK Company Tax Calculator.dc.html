@@ -949,8 +949,8 @@ const SANS = "'Jost',sans-serif";
 class Component extends DCLogic {
   state = {
     year: '2025/26', mode: 'target', flow: 'sankey',
-    revenue: 150000, expenses: 15000, pension: 0, otherIncome: 0,
-    salary: 12570, dividends: 60000, targetNet: 75000, studentLoan: false, yearEnd: 9,
+    revenue: 70000, expenses: 10000, pension: 0, otherIncome: 0,
+    salary: 12570, dividends: 60000, targetNet: 40000, studentLoan: false, yearEnd: 9,
     associates: 0, otherType: 'property',
     A: null, B: null, chartW: 1180, sweepW: 560, extW: 1100,
     tab: 'model', policy: 'max', swing: 20, sweepVar: 'revenue', metric: 'net'
@@ -980,7 +980,7 @@ class Component extends DCLogic {
 
   componentDidMount() {
     try {
-      const raw = localStorage.getItem('uk-company-tax-v1');
+      const raw = localStorage.getItem('uk-company-tax-v2');
       if (raw) {
         const p = JSON.parse(raw) || {};
         ['revenue','expenses','pension','otherIncome','salary','dividends','targetNet','associates','yearEnd'].forEach(k => {
@@ -996,7 +996,7 @@ class Component extends DCLogic {
   }
   persist(patch) {
     this.setState(patch, () => {
-      try { localStorage.setItem('uk-company-tax-v1', JSON.stringify(this.state)); } catch (e) {}
+      try { localStorage.setItem('uk-company-tax-v2', JSON.stringify(this.state)); } catch (e) {}
     });
   }
 
