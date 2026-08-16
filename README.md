@@ -12,7 +12,9 @@ Use **Request a feature** on the site. Each request opens a GitHub issue with th
 
 Requesters can cancel before sending, or withdraw a filed request by closing the GitHub issue.
 
-When an issue is opened, GitHub Actions comments immediately and launches a Cursor cloud agent to triage it. If it is a concrete code change, the agent opens a **pull request and stops**. Nothing is auto-merged.
+Work lands on `dev` first. Merge `dev` into `main` when you want a release; GitHub Pages deploys **only** from `main`.
+
+When an issue is opened, GitHub Actions comments immediately and launches a Cursor cloud agent to triage it. If it is a concrete code change, the agent opens a **pull request against `dev` and stops**. Nothing is auto-merged, and nothing deploys until `dev` is merged into `main`.
 
 To turn the bot on:
 

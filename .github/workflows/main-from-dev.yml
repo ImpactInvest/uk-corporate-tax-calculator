@@ -1,0 +1,19 @@
+name: Main only from dev
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  from-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require pull requests into main come from dev
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          echo "Pull request into main from '${HEAD_REF}'"
+          if [ "$HEAD_REF" != "dev" ]; then
+            echo "::error::Merge feature work into dev first. Only the dev branch may be merged into main, and only main deploys."
+            exit 1
+          fi

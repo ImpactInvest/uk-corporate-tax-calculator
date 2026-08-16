@@ -67,9 +67,9 @@ Body:
 {body}
 
 Rules:
-1. If this is a concrete product change you can make in this repository, implement only that change on a new branch from main. Cursor will open a pull request when you finish (`autoCreatePR`). Link the issue with `Fixes #{number}`.
+1. If this is a concrete product change you can make in this repository, implement only that change on a new branch from `dev`. Open the pull request against `dev` (Cursor `autoCreatePR` should target `dev`). Link the issue with `Fixes #{number}`.
 2. If it is a question, spam, duplicate, or needs a human decision, do not change code. Comment on the issue with a short triage instead, if you have permission.
-3. Never merge a pull request. Never enable auto-merge. Never push to main. Never force-push. Never delete branches.
+3. Never merge a pull request. Never enable auto-merge. Never push to `main` or `dev`. Never open a pull request against `main`. Never force-push. Never delete branches. Never deploy.
 4. Do not expand scope beyond the issue. Do not refactor unrelated files. Do not commit secrets.
 5. Keep the existing calculator behaviour except for what the issue asks for.
 """
@@ -80,7 +80,7 @@ Rules:
         "repos": [
             {
                 "url": f"https://github.com/{repo}",
-                "startingRef": "main",
+                "startingRef": "dev",
             }
         ],
         "autoCreatePR": True,
