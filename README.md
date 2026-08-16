@@ -28,6 +28,6 @@ Covers 2025/26 and 2026/27. Corporation tax 19% to £50,000 with marginal relief
 
 Salary sacrifice, benefits in kind, the employment allowance, VAT, IR35 and off-payroll rules, the high income child benefit charge, Plan 1/4/5 and postgraduate loans, and reserves brought forward.
 
-## Not advice
+## Disclaimer
 
-This is a planning aid, not tax advice. Check the figures against current HMRC guidance and your accountant before acting on them.
+This website is a planning tool for general information only. It is not tax, legal or accounting advice, and it is not a substitute for advice from a suitably qualified professional. Do not rely on the figures, or take or refrain from any action, without first consulting your own tax adviser, accountant or solicitor. Use of the site does not create a professional relationship, and no liability is accepted for loss arising from reliance on it.
