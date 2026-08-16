@@ -22,7 +22,7 @@ Requesters can cancel before sending, or withdraw a filed request by closing the
 
 ## Rates
 
-Covers 2025/26 and 2026/27. Corporation tax 19% to £50,000 with marginal relief to £250,000, 25% above. Plan 2 student loan 9% above £28,470 (2025/26) / £29,385 (2026/27), with dividends counted in full as unearned income once they exceed £2,000.
+Covers 2025/26 and 2026/27. Corporation tax 19% to £50,000 with marginal relief to £250,000, 25% above — limits divided if you have associated companies. Plan 2 student loan 9% above £28,470 (2025/26) / £29,385 (2026/27), with unearned income counted in full once it exceeds £2,000.
 
 ## Out of scope
 
