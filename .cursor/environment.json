@@ -1,0 +1,13 @@
+{
+  "name": "UK Company Tax Calculator",
+  "terminals": [
+    {
+      "name": "static-server",
+      "command": "python3 -m http.server 8000",
+      "description": "Serves the static site at http://localhost:8000. Open the calculator at http://localhost:8000/UK%20Company%20Tax%20Calculator.dc.html (or / which redirects there via index.html)."
+    }
+  ],
+  "ports": [
+    { "name": "web", "port": 8000 }
+  ]
+}
