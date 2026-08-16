@@ -12,6 +12,17 @@ Use **Request a feature** on the site. Each request opens a GitHub issue with th
 
 Requesters can cancel before sending, or withdraw a filed request by closing the GitHub issue.
 
+When an issue is opened, GitHub Actions comments immediately and launches a Cursor cloud agent to triage it. If it is a concrete code change, the agent opens a **pull request and stops**. Nothing is auto-merged.
+
+To turn the bot on:
+
+1. [Watch issues](https://github.com/ImpactInvest/uk-corporate-tax-calculator/subscription) on this repository (GitHub email as soon as something comes in).
+2. Create a [Cursor API key](https://cursor.com/dashboard/api) and add it as the `CURSOR_API_KEY` repository secret.
+3. Connect this repository in [Cursor Integrations](https://cursor.com/dashboard/integrations).
+4. Optional: if the agent can push a branch but cannot open a PR, add a GitHub PAT with `issues` and `pull_requests` as `BOT_GH_TOKEN`.
+
+Add the `bot-skip` label to keep an issue human-only. Re-run **Issue bot** from the Actions tab to retry.
+
 ## What it does
 
 **Model** — Set revenue, expenses, employer pension, other personal income and a Plan 2 student loan toggle, then either solve for a target net take-home or fix the salary and dividends yourself. Outputs corporation tax, employer and employee NI, income tax, dividend tax and student loan, with a Sankey flow, a waterfall, bucket breakdowns and a payment calendar.

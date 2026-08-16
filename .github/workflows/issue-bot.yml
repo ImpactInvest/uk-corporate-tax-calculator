@@ -1,0 +1,136 @@
+name: Issue bot
+
+on:
+  issues:
+    types: [opened, reopened]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: Issue number to triage
+        required: true
+        type: string
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: issue-bot-${{ github.event.issue.number || inputs.issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  triage:
+    if: github.event_name == 'workflow_dispatch' || github.event.issue.pull_request == null
+    runs-on: ubuntu-latest
+    steps:
+      - name: Load issue
+        id: issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const bots = new Set([
+              'dependabot[bot]',
+              'github-actions[bot]',
+              'cursor[bot]',
+            ]);
+
+            let issue;
+            if (context.eventName === 'workflow_dispatch') {
+              const n = parseInt('${{ inputs.issue_number }}', 10);
+              if (!n) {
+                core.setFailed('issue_number is required');
+                return;
+              }
+              issue = (await github.rest.issues.get({ owner, repo, issue_number: n })).data;
+            } else {
+              issue = context.payload.issue;
+            }
+
+            if (issue.pull_request) {
+              core.setOutput('skip', 'pr');
+              return;
+            }
+            if (bots.has(issue.user.login)) {
+              core.setOutput('skip', 'bot');
+              return;
+            }
+            const labels = (issue.labels || []).map((l) => l.name);
+            if (labels.includes('bot-skip')) {
+              core.setOutput('skip', 'label');
+              return;
+            }
+
+            const fs = require('fs');
+            const bodyFile = `${process.env.RUNNER_TEMP}/issue-body.txt`;
+            fs.writeFileSync(bodyFile, issue.body || '');
+            core.setOutput('skip', '');
+            core.setOutput('number', String(issue.number));
+            core.setOutput('title', issue.title);
+            core.setOutput('url', issue.html_url);
+            core.setOutput('user', issue.user.login);
+            core.setOutput('labels', labels.join(', '));
+            core.setOutput('body_file', bodyFile);
+
+      - name: Acknowledge
+        if: steps.issue.outputs.skip == ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue comment "${{ steps.issue.outputs.number }}" --repo "${{ github.repository }}" --body "$(cat <<'EOF'
+          Thanks — this is queued for the calculator bot.
+
+          A bot will triage it and open a pull request if it is a concrete code change. **Pull requests are never auto-merged.** Someone still has to review and merge.
+
+          Add the `bot-skip` label before filing if you want a human-only issue.
+          EOF
+          )"
+
+      - uses: actions/checkout@v4
+        if: steps.issue.outputs.skip == ''
+
+      - name: Launch Cursor agent
+        id: agent
+        if: steps.issue.outputs.skip == ''
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          BOT_GH_TOKEN: ${{ secrets.BOT_GH_TOKEN }}
+          ISSUE_NUMBER: ${{ steps.issue.outputs.number }}
+          ISSUE_TITLE: ${{ steps.issue.outputs.title }}
+          ISSUE_URL: ${{ steps.issue.outputs.url }}
+          ISSUE_USER: ${{ steps.issue.outputs.user }}
+          ISSUE_LABELS: ${{ steps.issue.outputs.labels }}
+          ISSUE_BODY_FILE: ${{ steps.issue.outputs.body_file }}
+          REPO: ${{ github.repository }}
+        run: python3 .github/scripts/launch-issue-agent.py
+
+      - name: Post agent link
+        if: steps.issue.outputs.skip == '' && steps.agent.outputs.skipped == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue comment "${{ steps.issue.outputs.number }}" --repo "${{ github.repository }}" --body "$(cat <<EOF
+          Bot run: ${{ steps.agent.outputs.agent_url }}
+          EOF
+          )"
+
+      - name: Warn if the API key is missing
+        if: steps.issue.outputs.skip == '' && steps.agent.outputs.skipped == 'missing-key'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue comment "${{ steps.issue.outputs.number }}" --repo "${{ github.repository }}" --body "$(cat <<'EOF'
+          The issue bot is not fully configured yet: add a `CURSOR_API_KEY` repository secret (from [Cursor API keys](https://cursor.com/dashboard/api)), connect this repo in [Cursor Integrations](https://cursor.com/dashboard/integrations), then re-run **Issue bot** from the Actions tab.
+          EOF
+          )"
+
+      - name: Warn if the agent failed to launch
+        if: failure() && steps.issue.outputs.skip == '' && steps.agent.outputs.skipped == 'api-error'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue comment "${{ steps.issue.outputs.number }}" --repo "${{ github.repository }}" --body "$(cat <<'EOF'
+          The calculator bot failed to start. Check the **Issue bot** run in Actions, then retry from the Actions tab.
+          EOF
+          )"
