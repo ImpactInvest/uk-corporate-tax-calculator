@@ -3,6 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UK Company Tax Calculator</title>
+<style>
+  .fr-open-fixed{position:fixed;right:clamp(16px,2vw,32px);bottom:22px;z-index:40;margin:0;padding:10px 14px;border:1px solid #1F1D1A;background:#F6F1E8;color:#1F1D1A;font:500 13px Jost,system-ui,sans-serif;letter-spacing:.01em;box-shadow:4px 4px 0 #1F1D1A;cursor:pointer}
+  .fr-dialog{padding:0;border:1px solid #1F1D1A;background:#F6F1E8;color:#1F1D1A;max-width:440px;width:calc(100vw - 32px)}
+  .fr-dialog::backdrop{background:rgba(31,29,26,.46)}
+  .fr-dialog form{display:flex;flex-direction:column;gap:16px;padding:26px 26px 24px}
+  .fr-dialog h2{margin:0;font:300 23px/1.1 Jost,system-ui,sans-serif;letter-spacing:-.01em}
+  .fr-dialog p{margin:0;font-size:13px;line-height:1.55;color:#8A8175}
+  .fr-dialog label{display:flex;flex-direction:column;gap:6px;font:500 12.5px Jost,system-ui,sans-serif}
+  .fr-dialog label span{font:400 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#8A8175}
+  .fr-dialog input,.fr-dialog textarea{border:1px solid #1F1D1A;background:#F6F1E8;color:#1F1D1A;font:400 14px Jost,system-ui,sans-serif;padding:9px 11px;border-radius:0;width:100%;box-sizing:border-box}
+  .fr-dialog textarea{min-height:110px;resize:vertical}
+  .fr-dialog input:focus,.fr-dialog textarea:focus{outline:2px solid rgba(62,107,82,.4);outline-offset:1px}
+  .fr-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
+  .fr-actions button{appearance:none;border:1px solid #1F1D1A;background:transparent;color:#1F1D1A;font:500 13px Jost,system-ui,sans-serif;padding:8px 14px;cursor:pointer}
+  .fr-actions button[value="submit"]{background:#1F1D1A;color:#F6F1E8}
+</style>
 <script src="./support.js"></script>
 </head>
 <body>
@@ -21,6 +38,22 @@
   input[type=range]:focus-visible{outline:none}
   input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px rgba(62,107,82,.4)}
   ::selection{background:#D8CBB4}
+  .fr-open{margin-left:auto;padding:15px 0 13px;border:0;border-bottom:3px solid transparent;background:transparent;color:#BE5236;font:500 14px Jost,system-ui,sans-serif;letter-spacing:.005em;cursor:pointer}
+  .fr-open:hover{border-bottom-color:#BE5236}
+  .fr-open-fixed{position:fixed;right:clamp(16px,2vw,32px);bottom:22px;z-index:40;margin:0;padding:10px 14px;border:1px solid #1F1D1A;border-bottom:1px solid #1F1D1A;background:#F6F1E8;color:#1F1D1A;font:500 13px Jost,system-ui,sans-serif;letter-spacing:.01em;box-shadow:4px 4px 0 #1F1D1A}
+  .fr-dialog{padding:0;border:1px solid #1F1D1A;background:#F6F1E8;color:#1F1D1A;max-width:440px;width:calc(100vw - 32px);box-shadow:none}
+  .fr-dialog::backdrop{background:rgba(31,29,26,.46)}
+  .fr-dialog form{display:flex;flex-direction:column;gap:16px;padding:26px 26px 24px}
+  .fr-dialog h2{margin:0;font:300 23px/1.1 Jost,system-ui,sans-serif;letter-spacing:-.01em}
+  .fr-dialog p{margin:0;font-size:13px;line-height:1.55;color:#8A8175}
+  .fr-dialog label{display:flex;flex-direction:column;gap:6px;font:500 12.5px Jost,system-ui,sans-serif}
+  .fr-dialog label span{font:400 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:#8A8175}
+  .fr-dialog input,.fr-dialog textarea{border:1px solid #1F1D1A;background:#F6F1E8;color:#1F1D1A;font:400 14px Jost,system-ui,sans-serif;padding:9px 11px;border-radius:0;width:100%;box-sizing:border-box}
+  .fr-dialog textarea{min-height:110px;resize:vertical}
+  .fr-dialog input:focus,.fr-dialog textarea:focus{outline:2px solid rgba(62,107,82,.4);outline-offset:1px}
+  .fr-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
+  .fr-actions button{appearance:none;border:1px solid #1F1D1A;background:transparent;color:#1F1D1A;font:500 13px Jost,system-ui,sans-serif;padding:8px 14px;cursor:pointer}
+  .fr-actions button[value="submit"]{background:#1F1D1A;color:#F6F1E8}
 </style>
 </helmet>
 <div style="min-width:1020px;max-width:1780px;margin:0 auto;padding:clamp(20px,2.2vw,34px) clamp(18px,2.4vw,40px) 56px">
@@ -47,10 +80,11 @@
       </div>
     </div>
     <div style="height:2px;background:#1F1D1A;margin:18px 0 0"></div>
-    <nav style="display:flex;gap:0">
+    <nav style="display:flex;gap:0;align-items:stretch">
       <button onClick="{{ goModel }}" style="{{ v.navModel }}">Model</button>
       <button onClick="{{ goSens }}" style="{{ v.navSens }}">Sensitivity</button>
       <button onClick="{{ goAssume }}" style="{{ v.navAssume }}">Assumptions &amp; sources</button>
+      <button type="button" class="fr-open">Request a feature</button>
     </nav>
   </header>
 
@@ -798,7 +832,7 @@
 
     <section style="background:#F5F1E8;border-radius:2px;padding:32px 36px 34px">
       <h2 style="margin:0 0 8px;font-size:23px;font-weight:300;letter-spacing:-.01em">Deliberately out of scope</h2>
-      <p style="margin:0 0 20px;font-size:12.5px;color:#8A8175;line-height:1.6">Each of these would change the answer. Say the word and any can be added.</p>
+      <p style="margin:0 0 20px;font-size:12.5px;color:#8A8175;line-height:1.6">Each of these would change the answer. <button type="button" class="fr-open" style="all:unset;cursor:pointer;color:#BE5236;border-bottom:1px solid rgba(190,82,54,.32);font:inherit">Request it</button> and it is tracked as a GitHub issue.</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px 32px;font-size:12.5px;color:#6E665C;line-height:1.6">
         <div>VAT and the flat rate scheme &mdash; all figures are net of VAT</div>
         <div>Director&rsquo;s loan account and the section 455 charge</div>
@@ -1651,6 +1685,66 @@ class Component extends DCLogic {
   }
 }
 
+</script>
+<button type="button" class="fr-open fr-open-fixed">Request a feature</button>
+<dialog class="fr-dialog" id="fr-dialog" aria-labelledby="fr-title">
+  <form id="fr-form" method="dialog">
+    <h2 id="fr-title">Request a feature</h2>
+    <p>Describe what you want added. This opens a GitHub issue so it is tracked and emailed to the maintainer. You will need to be signed in to GitHub to send it.</p>
+    <label>
+      <span>Title</span>
+      <input name="title" type="text" required maxlength="120" placeholder="e.g. Model employment allowance">
+    </label>
+    <label>
+      <span>Details</span>
+      <textarea name="details" required maxlength="4000" placeholder="What should change, and why it would help."></textarea>
+    </label>
+    <label>
+      <span>Your email (optional)</span>
+      <input name="email" type="email" maxlength="120" placeholder="If you want a reply">
+    </label>
+    <div class="fr-actions">
+      <button value="cancel">Cancel</button>
+      <button value="submit">Open GitHub issue</button>
+    </div>
+  </form>
+</dialog>
+<script>
+(function () {
+  var dialog = document.getElementById('fr-dialog');
+  var form = document.getElementById('fr-form');
+  var repo = 'https://github.com/ImpactInvest/uk-corporate-tax-calculator/issues/new';
+  function isOpenButton(node) {
+    return !!(node && node.classList && node.classList.contains('fr-open'));
+  }
+  document.addEventListener('click', function (event) {
+    var path = event.composedPath ? event.composedPath() : [];
+    var hit = event.target.closest && event.target.closest('.fr-open');
+    if (!hit) {
+      for (var i = 0; i < path.length; i++) {
+        if (isOpenButton(path[i])) { hit = path[i]; break; }
+      }
+    }
+    if (!hit) return;
+    event.preventDefault();
+    if (typeof dialog.showModal === 'function') dialog.showModal();
+  });
+  form.addEventListener('submit', function (event) {
+    if (event.submitter && event.submitter.value === 'cancel') return;
+    event.preventDefault();
+    var title = (form.title.value || '').trim();
+    var details = (form.details.value || '').trim();
+    var email = (form.email.value || '').trim();
+    if (!title || !details) return;
+    var body = '## Feature request\n\n' + details;
+    if (email) body += '\n\n**Contact:** ' + email;
+    body += '\n\n---\nSubmitted from the UK Company Tax Calculator.';
+    var url = repo + '?labels=feature-request&title=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(body);
+    window.open(url, '_blank', 'noopener');
+    dialog.close();
+    form.reset();
+  });
+})();
 </script>
 </body>
 </html>
