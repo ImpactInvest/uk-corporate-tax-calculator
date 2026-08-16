@@ -1,8 +1,14 @@
 # UK Company Tax Calculator
 
-A single-file, browser-based planning tool for a UK owner-managed limited company with a sole director. Model salary and dividend splits, see where every pound goes, and check when each liability falls due.
+A browser-based planning tool for a UK owner-managed limited company with a sole director. Model salary and dividend splits, see where every pound goes, and check when each liability falls due.
 
-Open `UK Company Tax Calculator.dc.html` in a browser. No build step, no server, no dependencies beyond the bundled runtime.
+**Live:** [impactinvest.github.io/uk-corporate-tax-calculator](https://impactinvest.github.io/uk-corporate-tax-calculator/)
+
+Open `UK Company Tax Calculator.dc.html` in a browser to run it locally. No build step, no server, no dependencies beyond the bundled runtime.
+
+## Feature requests
+
+Use **Request a feature** on the site. Each request opens a GitHub issue with the `feature-request` label, so it is tracked in this repo and emailed to you if you [watch issues](https://github.com/ImpactInvest/uk-corporate-tax-calculator/subscription) on the repository.
 
 ## What it does
 
