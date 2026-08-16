@@ -142,6 +142,16 @@
           </select>
           <div style="font-size:12px;color:#8A8175;line-height:1.5;margin-top:6px">{{ v.periodNote }}</div>
         </div>
+
+        <div>
+          <label style="font-size:13.5px;font-weight:500;display:block;margin-bottom:7px">Associated companies</label>
+          <select value="{{ associates }}" onChange="{{ onAssociates }}" style="{{ v.periodSelect }}">
+            <sc-for list="{{ associateOptions }}" as="o" hint-placeholder-count="6">
+              <option value="{{ o.value }}">{{ o.label }}</option>
+            </sc-for>
+          </select>
+          <div style="font-size:12px;color:#8A8175;line-height:1.5;margin-top:6px">{{ v.associateNote }}</div>
+        </div>
       </div>
 
       <div style="height:1px;background:#D3C9B8;margin:28px 0"></div>
@@ -198,8 +208,13 @@
         <label style="font-size:13.5px;font-weight:500">Other personal income</label>
         <span style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:500">{{ v.otherIncome }}</span>
       </div>
-      <input type="range" min="0" max="100000" step="500" value="{{ otherIncome }}" onChange="{{ onOther }}">
-      <div style="font-size:12px;color:#8A8175;line-height:1.5;margin-top:5px">Rent, interest, another employment. Sits under your dividends and pushes them into higher bands.</div>
+          <input type="range" min="0" max="100000" step="500" value="{{ otherIncome }}" onChange="{{ onOther }}">
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:9px">
+            <button onClick="{{ setOtherProperty }}" style="{{ v.otherProperty }}">Property</button>
+            <button onClick="{{ setOtherEmployment }}" style="{{ v.otherEmployment }}">Employment</button>
+            <button onClick="{{ setOtherSavings }}" style="{{ v.otherSavings }}">Interest</button>
+          </div>
+          <div style="font-size:12px;color:#8A8175;line-height:1.5;margin-top:7px">{{ v.otherNote }}</div>
 
       <div style="height:1px;background:#D3C9B8;margin:24px 0"></div>
 
@@ -221,6 +236,8 @@
         <div style="display:grid;grid-template-columns:12px 1fr;gap:9px"><span style="width:5px;height:5px;background:#BE5236;margin-top:7px"></span><span>{{ v.slAssume }}</span></div>
         <div style="display:grid;grid-template-columns:12px 1fr;gap:9px"><span style="width:5px;height:5px;background:#BE5236;margin-top:7px"></span><span>No Employment Allowance &mdash; sole director, so employer NI applies from &pound;5,000.</span></div>
         <div style="display:grid;grid-template-columns:12px 1fr;gap:9px"><span style="width:5px;height:5px;background:#BE5236;margin-top:7px"></span><span>VAT excluded throughout. No director&rsquo;s loan. No brought-forward reserves.</span></div>
+        <div style="{{ v.vatWarnStyle }}"><span style="width:5px;height:5px;background:#BE5236;margin-top:7px"></span><span>{{ v.vatWarn }}</span></div>
+        <div style="display:grid;grid-template-columns:12px 1fr;gap:9px"><span style="width:5px;height:5px;background:#BE5236;margin-top:7px"></span><span>Off-payroll / IR35 is not modelled. If the client must deduct tax at source, this salary/dividend split does not apply.</span></div>
       </div>
     </div>
 
@@ -364,8 +381,8 @@
         <div style="margin-top:28px">
           <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:#8A8175;margin-bottom:12px">Statutory due dates</div>
           <div style="display:flex;flex-direction:column">
-            <sc-for list="{{ dueDates }}" as="d" hint-placeholder-count="6">
-              <div style="display:grid;grid-template-columns:108px 1fr 130px 104px;gap:16px;align-items:baseline;padding:11px 0;border-bottom:1px solid #DFD7C8">
+            <sc-for list="{{ dueDates }}" as="d" hint-placeholder-count="16">
+              <div style="display:grid;grid-template-columns:128px 1fr 130px 104px;gap:16px;align-items:baseline;padding:11px 0;border-bottom:1px solid #DFD7C8">
                 <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:500">{{ d.date }}</div>
                 <div><div style="font-size:13px;font-weight:500">{{ d.title }}</div><div style="font-size:11.5px;color:#8A8175;margin-top:2px;line-height:1.45">{{ d.note }}</div></div>
                 <div style="font-family:'IBM Plex Mono',monospace;font-size:13.5px;text-align:right;color:{{ d.colour }}">{{ d.amount }}</div>
@@ -671,11 +688,11 @@
         <li>Client revenue, excluding VAT, less business expenses.</li>
         <li>Less director&rsquo;s gross salary and the employer National Insurance on it.</li>
         <li>Less any employer pension contribution &mdash; deductible for the company, not taxable on you.</li>
-        <li>The remainder is taxable profit. Corporation tax is applied with marginal relief where profit falls between &pound;50,000 and &pound;250,000.</li>
+        <li>The remainder is taxable profit. Corporation tax is applied with marginal relief between the small-profits and upper limits, which are divided if you have associated companies.</li>
         <li>Profit after tax is distributable. Dividends are declared from it; whatever is left stays in the company.</li>
         <li>On your side: the personal allowance is set against salary and other income first, then dividends are treated as the top slice of income. Employee NI applies to salary only.</li>
         <li>Net in pocket is salary plus dividends, less the income tax, employee NI and dividend tax that arise because of them.</li>
-        <li>If a Plan 2 student loan is switched on, 9% of repayment income above the threshold is deducted last. Salary is repayment income; dividends and other unearned income join it in full once they exceed &pound;2,000 in the year.</li>
+        <li>If a Plan 2 student loan is switched on, 9% of repayment income above the threshold is deducted last. Salary and any second employment always count. Dividends, property and interest join it in full once that unearned income exceeds &pound;2,000 in the year.</li>
       </ol>
     </section>
 
@@ -720,12 +737,12 @@
         <div style="padding:8px 0;font-weight:500">Dividend ordinary rate</div>
         <div style="padding:8px 0;text-align:right;font-family:'IBM Plex Mono',monospace">8.75%</div>
         <div style="padding:8px 0;text-align:right;font-family:'IBM Plex Mono',monospace;color:#BE5236">10.75%</div>
-        <div style="padding:8px 0 8px 24px;color:#8A8175">+2pp from 6 April 2026, Autumn Budget 2025 &middot; <a href="https://www.icaew.com/insights/tax-news/2025/nov-2025/budget-taxes-on-property-savings-and-dividends-increased" target="_blank" rel="noopener">ICAEW</a></div>
+        <div style="padding:8px 0 8px 24px;color:#8A8175">+2pp from 6 April 2026 &middot; <a href="https://www.gov.uk/tax-on-dividends" target="_blank" rel="noopener">gov.uk tax on dividends</a></div>
 
         <div style="padding:8px 0;font-weight:500">Dividend upper rate</div>
         <div style="padding:8px 0;text-align:right;font-family:'IBM Plex Mono',monospace">33.75%</div>
         <div style="padding:8px 0;text-align:right;font-family:'IBM Plex Mono',monospace;color:#BE5236">35.75%</div>
-        <div style="padding:8px 0 8px 24px;color:#8A8175">+2pp from 6 April 2026 &middot; <a href="https://taxscape.deloitte.com/measures-autumn-budget-2025/dividend--savings-and-property-income-tax-rate-increases.aspx" target="_blank" rel="noopener">Deloitte Taxscape</a></div>
+        <div style="padding:8px 0 8px 24px;color:#8A8175">+2pp from 6 April 2026 &middot; <a href="https://www.gov.uk/government/publications/changes-to-tax-rates-for-property-savings-dividend-income/changes-to-tax-rates-for-property-savings-dividend-income" target="_blank" rel="noopener">gov.uk Budget measure</a></div>
 
         <div style="padding:8px 0;font-weight:500">Dividend additional rate</div>
         <div style="padding:8px 0;text-align:right;font-family:'IBM Plex Mono',monospace">39.35%</div>
@@ -737,12 +754,12 @@
         <div style="padding:8px 0;font-weight:500">Employee NI (class 1 primary)</div>
         <div style="padding:8px 0;text-align:right;font-family:'IBM Plex Mono',monospace">8% &pound;12,570&ndash;&pound;50,270, then 2%</div>
         <div style="padding:8px 0;text-align:right;font-family:'IBM Plex Mono',monospace">same</div>
-        <div style="padding:8px 0 8px 24px;color:#8A8175"><a href="https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026" target="_blank" rel="noopener">gov.uk rates for employers</a></div>
+        <div style="padding:8px 0 8px 24px;color:#8A8175"><a href="https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2026-to-2027" target="_blank" rel="noopener">gov.uk rates for employers 2026 to 2027</a></div>
 
         <div style="padding:8px 0;font-weight:500">Employer NI (secondary)</div>
         <div style="padding:8px 0;text-align:right;font-family:'IBM Plex Mono',monospace">15% over &pound;5,000</div>
         <div style="padding:8px 0;text-align:right;font-family:'IBM Plex Mono',monospace">15% over &pound;5,000</div>
-        <div style="padding:8px 0 8px 24px;color:#8A8175">Rate and threshold unchanged for 2026/27 &middot; <a href="https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026" target="_blank" rel="noopener">gov.uk</a></div>
+        <div style="padding:8px 0 8px 24px;color:#8A8175">Rate and threshold unchanged for 2026/27 &middot; <a href="https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2026-to-2027" target="_blank" rel="noopener">gov.uk</a></div>
 
         <div style="padding:8px 0;font-weight:500">Employment Allowance</div>
         <div style="padding:8px 0;text-align:right;font-family:'IBM Plex Mono',monospace">not claimed</div>
@@ -781,7 +798,7 @@
         <div style="padding:8px 0;font-weight:500">Marginal relief</div>
         <div style="padding:8px 0;text-align:right;font-family:'IBM Plex Mono',monospace">25% &times; P &minus; 1.5% &times; (250,000 &minus; P)</div>
         <div style="padding:8px 0;text-align:right;font-family:'IBM Plex Mono',monospace">same</div>
-        <div style="padding:8px 0 8px 24px;color:#8A8175">One associated company assumed &middot; <a href="https://www.gov.uk/guidance/corporation-tax-marginal-relief" target="_blank" rel="noopener">gov.uk marginal relief</a></div>
+        <div style="padding:8px 0 8px 24px;color:#8A8175">{{ v.assumeAssoc }} &middot; <a href="https://www.gov.uk/guidance/corporation-tax-marginal-relief" target="_blank" rel="noopener">gov.uk marginal relief</a></div>
 
         <div style="padding:8px 0;font-weight:500">Pension annual allowance</div>
         <div style="padding:8px 0;text-align:right;font-family:'IBM Plex Mono',monospace">&pound;60,000</div>
@@ -799,24 +816,28 @@
           <div style="color:#8A8175;line-height:1.6">{{ v.assumeCTDueNote }} &middot; <a href="https://www.gov.uk/pay-corporation-tax" target="_blank" rel="noopener">gov.uk pay corporation tax</a></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:24px;padding:11px 0;border-bottom:1px solid #DFD7C8">
-          <div style="font-weight:500">{{ v.assumeCT600 }}</div>
-          <div style="color:#8A8175;line-height:1.6">Twelve months after the period end for the return; accounts to Companies House nine months after</div>
+          <div style="font-weight:500">{{ v.assumeCH }}</div>
+          <div style="color:#8A8175;line-height:1.6">Private company accounts, nine months after the period end &middot; <a href="https://www.gov.uk/government/publications/life-of-a-company-annual-requirements/life-of-a-company-part-1-accounts" target="_blank" rel="noopener">gov.uk filing accounts</a></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:24px;padding:11px 0;border-bottom:1px solid #DFD7C8">
-          <div style="font-weight:500">PAYE and NI &mdash; quarterly, 22nd</div>
-          <div style="color:#8A8175;line-height:1.6">Quarterly payment is allowed while average monthly liability is under &pound;1,500, which a minimum salary always is &middot; <a href="https://www.gov.uk/pay-paye-tax" target="_blank" rel="noopener">gov.uk pay employers&rsquo; PAYE</a></div>
+          <div style="font-weight:500">{{ v.assumeCT600 }}</div>
+          <div style="color:#8A8175;line-height:1.6">Company tax return to HMRC, twelve months after the period end</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:24px;padding:11px 0;border-bottom:1px solid #DFD7C8">
+          <div style="font-weight:500">{{ v.assumePayeFreq }}</div>
+          <div style="color:#8A8175;line-height:1.6">{{ v.assumePayeNote }} &middot; <a href="https://www.gov.uk/pay-paye-tax" target="_blank" rel="noopener">gov.uk pay employers&rsquo; PAYE</a></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:24px;padding:11px 0;border-bottom:1px solid #DFD7C8">
           <div style="font-weight:500">Self assessment &mdash; 31 January</div>
-          <div style="color:#8A8175;line-height:1.6">Balancing payment for the tax year just ended, plus the first payment on account for the next &middot; <a href="https://www.gov.uk/understand-self-assessment-bill/payments-on-account" target="_blank" rel="noopener">gov.uk payments on account</a></div>
+          <div style="color:#8A8175;line-height:1.6">Balancing payment for the tax year just ended, plus the first payment on account for the next. Student loan on dividends is in the balancing payment only &middot; <a href="https://www.gov.uk/understand-self-assessment-bill/payments-on-account" target="_blank" rel="noopener">gov.uk payments on account</a></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:24px;padding:11px 0;border-bottom:1px solid #DFD7C8">
           <div style="font-weight:500">Student loan &mdash; split collection</div>
-          <div style="color:#8A8175;line-height:1.6">The share arising on salary is deducted through payroll each month; the share arising on dividends is settled with the 31 January self assessment balancing payment and feeds the payments on account.</div>
+          <div style="color:#8A8175;line-height:1.6">The share arising on salary is deducted through payroll; the share arising on dividends is settled with the 31 January balancing payment. Student loan is not included in payments on account.</div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1.5fr;gap:24px;padding:11px 0">
           <div style="font-weight:500">Payments on account &mdash; 31 July</div>
-          <div style="color:#8A8175;line-height:1.6">Each instalment is half the previous year&rsquo;s liability that was not collected at source. The model approximates this from the current year&rsquo;s dividend tax.</div>
+          <div style="color:#8A8175;line-height:1.6">Each instalment is half the previous year&rsquo;s income tax that was not collected at source, unless that amount was under &pound;1,000 or more than 80% was collected via PAYE. Approximated from this year&rsquo;s dividend tax.</div>
         </div>
       </div>
     </section>
@@ -827,11 +848,11 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px 32px;font-size:12.5px;line-height:1.65">
         <div><span style="font-weight:500">Salary drawn evenly.</span> <span style="color:#8A8175">One twelfth a month, and dividends spread evenly too, so the monthly chart is smooth. Real dividends are lumpy and can be timed across 5 April.</span></div>
         <div><span style="font-weight:500">Dividend tax attributed to you.</span> <span style="color:#8A8175">Net in pocket subtracts only the tax caused by company income &mdash; tax on other income is excluded from the split.</span></div>
-        <div><span style="font-weight:500">Other income sits below dividends.</span> <span style="color:#8A8175">Dividends are the top slice, which is how HMRC stacks them, so other income pushes them into higher bands.</span></div>
+        <div><span style="font-weight:500">Other income is typed.</span> <span style="color:#8A8175">Property and a second employment sit with salary as non-savings income; interest is savings income (starting rate and personal savings allowance). Dividends remain the top slice. Employment always counts for Plan 2; property and interest are unearned.</span></div>
         <div><span style="font-weight:500">No reserves brought forward.</span> <span style="color:#8A8175">Distributable profit is this year&rsquo;s only. If the company has retained earnings, real headroom is higher.</span></div>
         <div><span style="font-weight:500">Student loan is not a tax.</span> <span style="color:#8A8175">It is shown as its own deduction and comes off net in pocket, but it is left out of &ldquo;tax &amp; NI&rdquo; and the effective tax rate &mdash; it repays a debt rather than funding the state.</span></div>
-        <div><span style="font-weight:500">Pension treated as yours.</span> <span style="color:#8A8175">Counted separately from take-home, not as tax &mdash; locked until 57 but untaxed on the way in.</span></div>
-        <div><span style="font-weight:500">Tax year rates, company year cash.</span> <span style="color:#8A8175">{{ v.assumeYearCash }}</span></div>
+        <div><span style="font-weight:500">Pension treated as yours.</span> <span style="color:#8A8175">Counted separately from take-home, not as tax. Normally locked until 55, rising to 57 from 6 April 2028.</span></div>
+        <div><span style="font-weight:500">Tax year rates, company year cash.</span> <span style="color:#8A8175">{{ v.assumeYearCash }} Corporation tax is charged by financial year from 1 April; income tax and NI use the 6 April tax year. Rates currently coincide.</span></div>
       </div>
     </section>
 
@@ -859,10 +880,12 @@
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px 32px;font-size:12.5px;line-height:1.7">
         <div><a href="https://www.gov.uk/income-tax-rates" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">gov.uk &mdash; Income Tax rates and Personal Allowances</a></div>
         <div><a href="https://www.gov.uk/tax-on-dividends" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">gov.uk &mdash; Tax on dividends</a></div>
-        <div><a href="https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">gov.uk &mdash; Rates and thresholds for employers</a></div>
+        <div><a href="https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2025-to-2026" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">gov.uk &mdash; Rates and thresholds for employers 2025 to 2026</a></div>
+        <div><a href="https://www.gov.uk/guidance/rates-and-thresholds-for-employers-2026-to-2027" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">gov.uk &mdash; Rates and thresholds for employers 2026 to 2027</a></div>
         <div><a href="https://www.gov.uk/corporation-tax-rates" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">gov.uk &mdash; Corporation Tax rates and reliefs</a></div>
         <div><a href="https://www.gov.uk/guidance/corporation-tax-marginal-relief" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">gov.uk &mdash; Marginal Relief for Corporation Tax</a></div>
         <div><a href="https://www.gov.uk/claim-employment-allowance/eligibility" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">gov.uk &mdash; Employment Allowance eligibility</a></div>
+        <div><a href="https://www.gov.uk/government/publications/life-of-a-company-annual-requirements/life-of-a-company-part-1-accounts" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">gov.uk &mdash; Filing accounts at Companies House</a></div>
         <div><a href="https://www.gov.uk/pay-corporation-tax" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">gov.uk &mdash; Pay your Corporation Tax bill</a></div>
         <div><a href="https://www.gov.uk/pay-paye-tax" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">gov.uk &mdash; Pay employers&rsquo; PAYE</a></div>
         <div><a href="https://www.gov.uk/understand-self-assessment-bill/payments-on-account" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">gov.uk &mdash; Payments on account</a></div>
@@ -890,7 +913,7 @@ const R = {
   '2025/26': {
     pa:12570, basic:37700, addThr:125140, rB:.20, rH:.40, rA:.45,
     divAllow:500, dB:.0875, dH:.3375, dA:.3935,
-    niPT:12570, niUEL:50270, niMain:.08, niUp:.02, erST:5000, erRate:.15,
+    niPT:12570, niUEL:50270, niMain:.08, niUp:.02, erST:5000, erRate:.15, lel:6500,
     ctSmall:.19, ctMain:.25, ctLo:50000, ctHi:250000, mr:.015,
     slThr:28470, slRate:.09, slUnearned:2000,
     ctNote:'Corporation tax 19% to £50,000, marginal relief to £250,000, 25% above.',
@@ -899,7 +922,7 @@ const R = {
   '2026/27': {
     pa:12570, basic:37700, addThr:125140, rB:.20, rH:.40, rA:.45,
     divAllow:500, dB:.1075, dH:.3575, dA:.3935,
-    niPT:12570, niUEL:50270, niMain:.08, niUp:.02, erST:5000, erRate:.15,
+    niPT:12570, niUEL:50270, niMain:.08, niUp:.02, erST:5000, erRate:.15, lel:6708,
     ctSmall:.19, ctMain:.25, ctLo:50000, ctHi:250000, mr:.015,
     slThr:29385, slRate:.09, slUnearned:2000,
     ctNote:'Corporation tax unchanged: 19% to £50,000, marginal relief to £250,000, 25% above.',
@@ -928,6 +951,7 @@ class Component extends DCLogic {
     year: '2025/26', mode: 'target', flow: 'sankey',
     revenue: 150000, expenses: 15000, pension: 0, otherIncome: 0,
     salary: 12570, dividends: 60000, targetNet: 75000, studentLoan: false, yearEnd: 9,
+    associates: 0, otherType: 'property',
     A: null, B: null, chartW: 1180, sweepW: 560, extW: 1100,
     tab: 'model', policy: 'max', swing: 20, sweepVar: 'revenue', metric: 'net'
   };
@@ -959,7 +983,7 @@ class Component extends DCLogic {
       const raw = localStorage.getItem('uk-company-tax-v1');
       if (raw) {
         const p = JSON.parse(raw) || {};
-        ['revenue','expenses','pension','otherIncome','salary','dividends','targetNet'].forEach(k => {
+        ['revenue','expenses','pension','otherIncome','salary','dividends','targetNet','associates','yearEnd'].forEach(k => {
           if (typeof p[k] !== 'number' || !isFinite(p[k])) delete p[k];
         });
         ['A','B'].forEach(k => {
@@ -976,78 +1000,140 @@ class Component extends DCLogic {
     });
   }
 
-  // Accounting period: 12 months ending on the last day of `yearEnd`. The cash calendar
-  // opens the month after that end, so it carries the CT payment for the period just closed.
+  lastDay(y, m) {
+    if (m === 1) return (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0)) ? 29 : 28;
+    return DIM[m];
+  }
+  addMonths(y, m, d, months) {
+    m += months;
+    y += Math.floor(m / 12);
+    m = ((m % 12) + 12) % 12;
+    return { y, m, d: Math.min(d, this.lastDay(y, m)) };
+  }
+  addDays(y, m, d, days) {
+    d += days;
+    while (d > this.lastDay(y, m)) {
+      d -= this.lastDay(y, m);
+      m++;
+      if (m > 11) { m = 0; y++; }
+    }
+    return { y, m, d };
+  }
+  fmtDate(p) { return p.d + ' ' + MN[p.m] + ' ' + p.y; }
+
+  otherTypeOf(s) {
+    return s.otherType === 'employment' || s.otherType === 'savings' ? s.otherType : 'property';
+  }
+  associatesOf(s) { return Math.max(0, Math.min(20, s.associates | 0)); }
+
+  // Accounting period: 12 months ending last day of `yearEnd`. Cash bars cover the
+  // 12 months after that end, so corporation tax and the SA balancing payment appear.
   period() {
     const endM = Math.min(Math.max(this.state.yearEnd | 0, 0), 11);
     const startM = (endM + 1) % 12;
-    const startYear = parseInt(this.state.year.slice(0, 4), 10);
+    const taxStart = parseInt(this.state.year.slice(0, 4), 10);
+    const startYear = taxStart;
+    const endY = startM === 0 ? startYear : startYear + 1;
+    const endDay = this.lastDay(endY, endM);
+    const cashStartM = startM;
+    const cashStartY = endM === 11 ? endY + 1 : endY;
+    const yearOf = slot => cashStartY + Math.floor((cashStartM + slot) / 12);
     return {
-      endM, startM, startYear, endDay:DIM[endM],
+      endM, startM, startYear, taxStart, endY, endDay,
+      cashStartM, cashStartY,
       priorEndYear: startM === 0 ? startYear - 1 : startYear,
-      slotOf: mIdx => (mIdx - startM + 12) % 12,
-      yearOf: slot => startYear + Math.floor((startM + slot) / 12)
+      slotOf: mIdx => (mIdx - cashStartM + 12) % 12,
+      yearOf,
+      inCashWindow: (y, m) => yearOf((m - cashStartM + 12) % 12) === y
     };
   }
 
   // ---------- tax engine ----------
-  ct(profit, r) {
+  ctLimits(r, associates) {
+    const n = Math.max(this.associatesOf({ associates }) + 1, 1);
+    return { lo: r.ctLo / n, hi: r.ctHi / n, n };
+  }
+  ct(profit, r, associates) {
+    const { lo, hi } = this.ctLimits(r, associates);
     if (profit <= 0) return 0;
-    if (profit <= r.ctLo) return profit * r.ctSmall;
-    if (profit >= r.ctHi) return profit * r.ctMain;
-    return profit * r.ctMain - (r.ctHi - profit) * r.mr;
+    if (profit <= lo) return profit * r.ctSmall;
+    if (profit >= hi) return profit * r.ctMain;
+    return profit * r.ctMain - (hi - profit) * r.mr;
   }
   eeNI(salary, r) {
     return Math.max(0, Math.min(salary, r.niUEL) - r.niPT) * r.niMain + Math.max(0, salary - r.niUEL) * r.niUp;
   }
   erNI(salary, r) { return Math.max(0, salary - r.erST) * r.erRate; }
-  sl(salary, other, divs, r, on) {
+  sl(salary, other, divs, r, on, otherType) {
     if (!on) return 0;
-    const unearned = other + divs;
-    const income = salary + (unearned > r.slUnearned ? unearned : 0);
+    const earnedOther = otherType === 'employment' ? other : 0;
+    const unearnedOther = otherType === 'employment' ? 0 : other;
+    const unearned = unearnedOther + divs;
+    const income = salary + earnedOther + (unearned > r.slUnearned ? unearned : 0);
     return Math.max(0, Math.floor(income) - r.slThr) * r.slRate;
   }
 
-  income(salary, other, divs, r) {
-    const nonSav = salary + other, total = nonSav + divs;
+  income(salary, other, divs, r, otherType) {
+    const type = otherType === 'employment' || otherType === 'savings' ? otherType : 'property';
+    const savings = type === 'savings' ? other : 0;
+    const nonSav = salary + (type === 'savings' ? 0 : other);
+    const total = nonSav + savings + divs;
     const pa = Math.max(0, r.pa - Math.max(0, (total - 100000) / 2));
-    const paNS = Math.min(nonSav, pa), paDiv = pa - paNS;
+    const paNS = Math.min(nonSav, pa);
+    const paSav = Math.min(savings, pa - paNS);
+    const paDiv = pa - paNS - paSav;
     const tNS = nonSav - paNS;
+    const tSav = savings - paSav;
     const basicCap = r.basic, higherCap = Math.max(r.addThr - pa, basicCap);
     const b = Math.min(tNS, basicCap);
     const h = Math.min(Math.max(tNS - basicCap, 0), higherCap - basicCap);
     const a = Math.max(tNS - higherCap, 0);
     const itNS = b * r.rB + h * r.rH + a * r.rA;
 
-    let tDiv = Math.max(divs - paDiv, 0), cursor = tNS;
+    let cursor = tNS, remSav = tSav, savTax = 0;
+    if (tSav > 0) {
+      const startRate = Math.max(0, 5000 - tNS);
+      const sr = Math.min(remSav, startRate, Math.max(basicCap - cursor, 0));
+      cursor += sr; remSav -= sr;
+      const psa = total > r.addThr ? 0 : (total > r.pa + r.basic ? 500 : 1000);
+      const psaUse = Math.min(remSav, psa);
+      cursor += psaUse; remSav -= psaUse;
+      const sB = Math.min(remSav, Math.max(basicCap - cursor, 0)); cursor += sB; remSav -= sB;
+      const sH = Math.min(remSav, Math.max(higherCap - cursor, 0)); cursor += sH; remSav -= sH;
+      savTax = sB * r.rB + sH * r.rH + remSav * r.rA;
+    }
+
+    let tDiv = Math.max(divs - paDiv, 0);
     const allow = Math.min(tDiv, r.divAllow);
     cursor += allow; let rem = tDiv - allow;
     const dB = Math.min(rem, Math.max(basicCap - cursor, 0)); cursor += dB; rem -= dB;
     const dH = Math.min(rem, Math.max(higherCap - cursor, 0)); cursor += dH; rem -= dH;
     const divTax = dB * r.dB + dH * r.dH + rem * r.dA;
-    return { itNS, divTax, pa, bands:{dB, dH, dA:rem, allow} };
+    return { itNS, savTax, divTax, pa, bands:{dB, dH, dA:rem, allow} };
   }
 
   model(s) {
     const r = R[s.year];
+    const associates = this.associatesOf(s);
+    const otherType = this.otherTypeOf(s);
     const erNI = this.erNI(s.salary, r);
     const profit = s.revenue - s.expenses - s.salary - erNI - s.pension;
-    const ct = this.ct(profit, r);
+    const ct = this.ct(profit, r, associates);
     const distributable = profit - ct;
     const divs = s.dividends;
-    const t = this.income(s.salary, s.otherIncome, divs, r);
-    const base = this.income(0, s.otherIncome, 0, r);
+    const t = this.income(s.salary, s.otherIncome, divs, r, otherType);
+    const base = this.income(0, s.otherIncome, 0, r, otherType);
     const eeNI = this.eeNI(s.salary, r);
-    const itOnSalary = t.itNS - base.itNS;
+    const itOnSalary = (t.itNS + t.savTax) - (base.itNS + base.savTax);
     const personalTax = itOnSalary + eeNI + t.divTax;
     const on = !!s.studentLoan;
-    const slBase = this.sl(0, s.otherIncome, 0, r, on);
-    const slDue = Math.max(this.sl(s.salary, s.otherIncome, divs, r, on) - slBase, 0);
-    const slOnSalary = Math.min(Math.max(this.sl(s.salary, s.otherIncome, 0, r, on) - slBase, 0), slDue);
+    const slBase = this.sl(0, s.otherIncome, 0, r, on, otherType);
+    const slDue = Math.max(this.sl(s.salary, s.otherIncome, divs, r, on, otherType) - slBase, 0);
+    const slOnSalary = Math.min(Math.max(this.sl(s.salary, s.otherIncome, 0, r, on, otherType) - slBase, 0), slDue);
     const slOnDivs = Math.max(slDue - slOnSalary, 0);
     const net = s.salary + divs - personalTax - slDue;
     const totalTax = ct + erNI + personalTax;
-    return { r, erNI, profit, ct, distributable, divs, eeNI, itOnSalary, divTax:t.divTax,
+    return { r, associates, otherType, erNI, profit, ct, distributable, divs, eeNI, itOnSalary, divTax:t.divTax,
       personalTax, slDue, slOnSalary, slOnDivs, net, totalTax, retained: distributable - divs, bands:t.bands, pa:t.pa,
       netSalary: s.salary - eeNI - itOnSalary - slOnSalary, netDivs: divs - t.divTax - slOnDivs };
   }
@@ -1176,11 +1262,12 @@ class Component extends DCLogic {
   }
 
   // Pre-CT profit needed to leave exactly D distributable, inverted analytically.
-  profitFor(D, r) {
+  profitFor(D, r, associates) {
+    const { lo, hi } = this.ctLimits(r, associates);
     if (D <= 0) return 0;
-    if (D <= r.ctLo * (1 - r.ctSmall)) return D / (1 - r.ctSmall);
-    if (D >= r.ctHi * (1 - r.ctMain)) return D / (1 - r.ctMain);
-    return (D - r.mr * r.ctHi) / (1 - r.ctMain - r.mr);
+    if (D <= lo * (1 - r.ctSmall)) return D / (1 - r.ctSmall);
+    if (D >= hi * (1 - r.ctMain)) return D / (1 - r.ctMain);
+    return (D - r.mr * hi) / (1 - r.ctMain - r.mr);
   }
 
   // For a gross withdrawal G (salary + dividends), find the split that nets the most,
@@ -1189,11 +1276,11 @@ class Component extends DCLogic {
     const cap = Math.min(G, 60000);
     const cands = [0];
     for (let sa = 2000; sa <= cap; sa += 2000) cands.push(sa);
-    [5000, 6708, 12570, 50270, cap].forEach(v => { if (v <= G && cands.indexOf(v) < 0) cands.push(v); });
+    [5000, 6500, 6708, 12570, 50270, cap].forEach(v => { if (v <= G && cands.indexOf(v) < 0) cands.push(v); });
     let best = null;
     cands.forEach(S => {
       const D = Math.max(G - S, 0);
-      const P = this.profitFor(D, r);
+      const P = this.profitFor(D, r, base.associates);
       const erNI = this.erNI(S, r);
       const revenue = base.expenses + base.pension + S + erNI + P;
       const m = this.model({ ...base, salary:S, dividends:D, revenue });
@@ -1261,7 +1348,7 @@ class Component extends DCLogic {
   }
 
   heatData(base, mm) {
-    const sals = [0, 5000, 6708, 12570, 20000, 30000, 40000, 50270];
+    const sals = [0, 5000, 6500, 6708, 12570, 20000, 30000, 40000, 50270];
     const pens = [0, 5000, 10000, 20000, 30000, 40000, 60000];
     const grid = sals.map(sa => pens.map(pe => this.policyModel({ ...base, salary:sa, pension:pe })[mm.key]));
     const flat = grid.flat();
@@ -1453,18 +1540,34 @@ class Component extends DCLogic {
     }));
 
     const pd = this.period();
-    const { startYear, startM, endM, endDay, priorEndYear, slotOf, yearOf } = pd;
+    const { startYear, startM, endM, endDay, endY, taxStart, slotOf, yearOf, inCashWindow } = pd;
     const names = Array.from({ length:12 }, (_, i) => MN[(startM + i) % 12]);
-    const saPrior = m.divTax + m.slOnDivs;
-    const poa = saPrior / 2;
-    const payeQ = (m.itOnSalary + m.eeNI + m.erNI + m.slOnSalary) / 4;
+    const payeAnnual = m.itOnSalary + m.eeNI + m.erNI + m.slOnSalary;
+    const payeMonthlyAmt = payeAnnual / 12;
+    const payeQuarterly = payeMonthlyAmt < 1500;
+    const payeQ = payeAnnual / 4;
+    const relevantIT = m.divTax;
+    const totalIT = m.itOnSalary + m.divTax;
+    const poaExempt = relevantIT < 1000 || (totalIT > 0 && m.itOnSalary / totalIT > 0.8);
+    const poa = poaExempt ? 0 : relevantIT / 2;
+    const saBalancing = m.divTax + m.slOnDivs;
+    const nineLater = this.addMonths(endY, endM, endDay, 9);
+    const ctDue = this.addDays(nineLater.y, nineLater.m, nineLater.d, 1);
+    const chDue = nineLater;
+    const ct600Due = this.addMonths(endY, endM, endDay, 12);
+    const saJan = { y: taxStart + 2, m: 0, d: 31 };
+    const poaJul = { y: taxStart + 1, m: 6, d: 31 };
+
     const hmrcByMonth = Array(12).fill(0);
-    const ctM = (endM + 10) % 12;               // 9 months + 1 day after the period end
-    hmrcByMonth[slotOf(0)] += payeQ + saPrior + poa;
-    hmrcByMonth[slotOf(3)] += payeQ;
-    hmrcByMonth[slotOf(6)] += payeQ + poa;
-    hmrcByMonth[slotOf(9)] += payeQ;
-    hmrcByMonth[slotOf(ctM)] += m.ct;
+    const addBar = (y, mo, amt) => { if (inCashWindow(y, mo)) hmrcByMonth[slotOf(mo)] += amt; };
+    if (payeQuarterly) {
+      [0, 3, 6, 9].forEach(mo => addBar(yearOf(slotOf(mo)), mo, payeQ));
+    } else {
+      for (let i = 0; i < 12; i++) addBar(yearOf(i), (startM + i) % 12, payeMonthlyAmt);
+    }
+    addBar(saJan.y, saJan.m, saBalancing + poa);
+    addBar(poaJul.y, poaJul.m, poa);
+    addBar(ctDue.y, ctDue.m, m.ct);
     const youMonthly = m.net / 12;
     const maxBar = Math.max(...hmrcByMonth.map((h, i) => h + youMonthly), 1);
     const months = names.map((n, i) => {
@@ -1478,16 +1581,40 @@ class Component extends DCLogic {
     });
 
     const chip = (who) => `font:500 9.5px ${MONO};letter-spacing:.13em;padding:4px 8px;background:${who === 'COMPANY' ? '#E2E5E9' : '#F0DFD7'};color:${who === 'COMPANY' ? C.keep : C.hmrc}`;
-    const on = (mIdx, day) => { const sl = slotOf(mIdx); return { sl, day, date:day + ' ' + MN[mIdx] + ' ' + yearOf(sl) }; };
+    const item = (p, title, note, amount, payer) => ({
+      y:p.y, m:p.m, d:p.d, date:this.fmtDate(p), title, note, amount, payer
+    });
+    const payeNote = payeQuarterly
+      ? 'Quarterly because average monthly PAYE/NIC is under £1,500'
+      : 'Monthly because average PAYE/NIC is £1,500 or more';
+    const qPaye = [
+      item({ y:taxStart, m:6, d:22 }, 'PAYE / NIC — quarter to 5 Jul', payeNote, f0(payeQ), 'COMPANY'),
+      item({ y:taxStart, m:9, d:22 }, 'PAYE / NIC — quarter to 5 Oct', payeNote, f0(payeQ), 'COMPANY'),
+      item({ y:taxStart + 1, m:0, d:22 }, 'PAYE / NIC — quarter to 5 Jan', payeNote, f0(payeQ), 'COMPANY'),
+      item({ y:taxStart + 1, m:3, d:22 }, 'PAYE / NIC — quarter to 5 Apr', 'Closes the ' + st.year + ' payroll year; P60 due 31 May', f0(payeQ), 'COMPANY')
+    ];
+    const mPaye = [];
+    if (!payeQuarterly) {
+      for (let i = 0; i < 12; i++) {
+        const dueM = (4 + i) % 12;
+        const dueY = taxStart + (4 + i >= 12 ? 1 : 0);
+        mPaye.push(item({ y:dueY, m:dueM, d:22 }, 'PAYE / NIC — monthly', payeNote, f0(payeMonthlyAmt), 'COMPANY'));
+      }
+    }
+    const poaNote = poaExempt
+      ? (relevantIT < 1000 ? 'No payment on account — relevant income tax under £1,000' : 'No payment on account — more than 80% collected via PAYE')
+      : '50% of dividend tax not collected at source. Student loan is not included.';
     const dueDates = [
-      { ...on(0, 22), title:'PAYE / NIC — quarter to 5 Jan', note:'Quarterly because employer NI is under £1,500 a month', amount:f0(payeQ), payer:'COMPANY' },
-      { ...on(0, 31), title:'Self assessment balancing payment + payment on account', note:'Dividend tax' + (m.slOnDivs > 0 ? ' and student loan on dividends' : '') + ' for ' + st.year + ', plus 50% on account for next year', amount:f0(saPrior + poa), payer:'YOU' },
-      { ...on(3, 22), title:'PAYE / NIC — quarter to 5 Apr', note:'Closes the ' + st.year + ' payroll year; P60 due 31 May', amount:f0(payeQ), payer:'COMPANY' },
-      { ...on(6, 31), title:'Second payment on account', note:'50% of the prior year personal liability', amount:f0(poa), payer:'YOU' },
-      { ...on(ctM, 1), title:'Corporation tax — year ended ' + endDay + ' ' + MN[endM] + ' ' + priorEndYear, note:'Nine months and one day after the accounting period ends', amount:f0(m.ct), payer:'COMPANY' },
-      { ...on(9, 22), title:'PAYE / NIC — quarter to 5 Oct', note:'Quarterly instalment', amount:f0(payeQ), payer:'COMPANY' },
-      { ...on(endM, endDay), title:'CT600 and accounts filing', note:'Twelve months after the period end — filing only, no payment', amount:'—', payer:'COMPANY' }
-    ].sort((a, b) => a.sl - b.sl || a.day - b.day)
+      ...(payeQuarterly ? qPaye : mPaye),
+      item(saJan, 'Self assessment balancing payment' + (poa > 0 ? ' + payment on account' : ''),
+        (m.slOnDivs > 0 ? 'Dividend tax and student loan on dividends' : 'Dividend tax') + ' for ' + st.year + (poa > 0 ? ', plus 50% on account of next year’s income tax' : ''),
+        f0(saBalancing + poa), 'YOU'),
+      ...(poa > 0 ? [item(poaJul, 'Second payment on account', poaNote, f0(poa), 'YOU')] : []),
+      item(ctDue, 'Corporation tax — year ended ' + endDay + ' ' + MN[endM] + ' ' + endY,
+        'Nine months and one day after the accounting period ends', f0(m.ct), 'COMPANY'),
+      item(chDue, 'Companies House accounts', 'Nine months after the period end — filing only, no payment', '—', 'COMPANY'),
+      item(ct600Due, 'CT600 company tax return', 'Twelve months after the period end — filing only, no payment', '—', 'COMPANY')
+    ].sort((a, b) => a.y - b.y || a.m - b.m || a.d - b.d)
      .map(d => ({ ...d, colour: d.payer === 'YOU' ? C.hmrc : P.ink, chip: chip(d.payer) }));
 
     const row = (k, v, sub, kind) => ({
@@ -1497,7 +1624,7 @@ class Component extends DCLogic {
       vStyle:`font-family:${MONO};font-size:${kind === 'strong' ? '15.5px' : '13px'};font-weight:500;white-space:nowrap;color:${kind === 'tax' ? C.hmrc : P.ink}`
     });
     const splitRows = [
-      row('Gross salary', f0(s.salary), s.salary === 12570 ? 'At the personal allowance — no income tax, full NI credit' : 'Monthly gross ' + f2(s.salary / 12), 'strong'),
+      row('Gross salary', f0(s.salary), s.salary === 12570 ? 'At the personal allowance — no income tax, qualifying year for State Pension' : 'Monthly gross ' + f2(s.salary / 12), 'strong'),
       row('Dividends declared', f0(m.divs), 'From ' + f0(Math.max(m.distributable, 0)) + ' distributable', 'strong'),
       row('Employer NI', '−' + f0(m.erNI), 'Company pays, 15% above £5,000', 'tax'),
       row('Corporation tax', '−' + f0(m.ct), 'Effective rate ' + pct(m.ct, Math.max(m.profit, 1)), 'tax'),
@@ -1508,7 +1635,7 @@ class Component extends DCLogic {
       row('Net in your pocket', f0(m.net), pct(m.net, rev) + ' of revenue reaches you', 'strong')
     ];
 
-    const cands = [0, 5000, 12570, s.salary, 50270].filter((v, i, a) => a.indexOf(v) === i).sort((a, b) => a - b);
+    const cands = [0, 5000, r.lel, 12570, s.salary, 50270].filter((v, i, a) => a.indexOf(v) === i).sort((a, b) => a - b);
     const target = m.net;
     const opts = cands.map(sal => {
       const base = { ...s, salary: sal };
@@ -1611,6 +1738,12 @@ class Component extends DCLogic {
       onYearEnd:e => this.persist({ yearEnd:+e.target.value }),
       yearEnd:st.yearEnd,
       monthOptions:MFULL.map((mn, i) => ({ value:i, label:DIM[i] + ' ' + mn })),
+      associates:st.associates,
+      associateOptions:[0,1,2,3,4,5].map(n => ({ value:n, label: n === 0 ? 'None — this company only' : n === 1 ? '1 other associated company' : n + ' other associated companies' })),
+      onAssociates:e => this.persist({ associates:+e.target.value }),
+      setOtherProperty:() => this.persist({ otherType:'property' }),
+      setOtherEmployment:() => this.persist({ otherType:'employment' }),
+      setOtherSavings:() => this.persist({ otherType:'savings' }),
       onSalary:e => this.persist({ salary:+e.target.value }),
       onDividends:e => this.persist({ dividends:+e.target.value }),
       onTargetNet:e => this.persist({ targetNet:+e.target.value }),
@@ -1642,11 +1775,26 @@ class Component extends DCLogic {
           : f2(m.net / 12) + ' a month · from ' + f0(s.revenue) + ' of revenue',
         solveNote:'Suggested split: ' + f0(s.salary) + ' salary and ' + f0(m.divs) + ' of dividends. ' + (infeasible ? 'Revenue will not stretch this far.' : 'Dividend tax of ' + f0(m.divTax) + ' falls due on self assessment.'),
         manualNote:'Distributable profit is ' + f0(Math.max(m.distributable, 0)) + '. ' + (shortfall ? 'You are declaring more than the company has.' : f0(Math.max(m.retained, 0)) + ' would stay in the company.'),
-        salaryNote:st.salary === 12570 ? 'The default: covered by the personal allowance, still earns a qualifying year for state pension. Costs the company ' + f0(m.erNI) + ' in employer NI, which is itself deductible.' : st.salary <= 5000 ? 'Below the £5,000 secondary threshold, so no employer NI — but under £6,500 you get no qualifying year.' : 'Employer NI ' + f0(m.erNI) + ', employee NI ' + f0(m.eeNI) + ', income tax ' + f0(m.itOnSalary) + '.',
-        assumeCT:r.ctNote, assumeDiv:r.divNote,
+        salaryNote:st.salary === 12570 ? 'The default: covered by the personal allowance, still earns a qualifying year for State Pension. Costs the company ' + f0(m.erNI) + ' in employer NI, which is itself deductible.' : st.salary <= 5000 ? 'Below the £5,000 secondary threshold, so no employer NI — and under ' + f0(r.lel) + ' you get no qualifying year.' : st.salary < r.lel ? 'Employer NI applies, but under ' + f0(r.lel) + ' you get no qualifying year for State Pension.' : 'Employer NI ' + f0(m.erNI) + ', employee NI ' + f0(m.eeNI) + ', income tax ' + f0(m.itOnSalary) + '.',
+        assumeCT: (() => { const lim = this.ctLimits(r, st.associates); return 'Corporation tax 19% to ' + f0(lim.lo) + ', marginal relief to ' + f0(lim.hi) + ', 25% above.'; })(),
+        assumeDiv:r.divNote,
+        assumeAssoc: st.associates > 0
+          ? 'Limits divided by ' + (st.associates + 1) + ' (this company + ' + st.associates + ' associate' + (st.associates === 1 ? '' : 's') + ')'
+          : 'Standalone company — no associated companies. Limits £50,000 / £250,000',
+        associateNote: st.associates > 0
+          ? 'Lower and upper limits are divided by ' + (st.associates + 1) + '.'
+          : 'Leave at none unless you control another company. Associates split the £50,000 / £250,000 bands.',
+        otherProperty:chipBtn(this.otherTypeOf(st) === 'property'), otherEmployment:chipBtn(this.otherTypeOf(st) === 'employment'), otherSavings:chipBtn(this.otherTypeOf(st) === 'savings'),
+        otherNote: this.otherTypeOf(st) === 'employment'
+          ? 'Another employment. Taxed as non-savings income under your dividends. Always counts for Plan 2. Employee NI on that job is not modelled.'
+          : this.otherTypeOf(st) === 'savings'
+            ? 'Bank or building-society interest. Savings starting rate and personal savings allowance applied; dividends stay the top slice. Unearned for Plan 2.'
+            : 'Property income. Taxed as non-savings under your dividends. Unearned for Plan 2 — counts in full once unearned income exceeds £2,000.',
+        vatWarn: 'Revenue is at or above the £90,000 VAT registration threshold. Figures are still ex VAT.',
+        vatWarnStyle: s.revenue >= 90000 ? 'display:grid;grid-template-columns:12px 1fr;gap:9px' : 'display:none',
         slOn:seg(st.studentLoan) + ';border-left:1px solid ' + P.ink, slOff:seg(!st.studentLoan),
         slNote: st.studentLoan
-          ? '9% of everything above ' + f0(r.slThr) + '. Dividends are unearned income: once they pass £2,000 the whole lot counts, not just salary — so ' + f0(m.slDue) + ' comes off this year.'
+          ? '9% of everything above ' + f0(r.slThr) + '. ' + (this.otherTypeOf(st) === 'employment' ? 'A second employment always counts.' : 'Property and interest are unearned: once they plus dividends pass £2,000 the whole unearned amount counts.') + ' This year that is ' + f0(m.slDue) + '.'
           : 'Turn on if you hold a Plan 2 loan — an English or Welsh course started between 2012 and 2023.',
         slLine: m.slDue > 0 ? 'after ' + f0(m.slDue) + ' of Plan 2 student loan' : '',
         slLineStyle: m.slDue > 0 ? 'font-size:12px;color:#B79AB0;margin-top:8px' : 'display:none',
@@ -1678,17 +1826,22 @@ class Component extends DCLogic {
         extNet:f0(ext.oCur.net), extRate:(ext.oCur.taxRate * 100).toFixed(1) + '%',
         extMarginal:(ext.marginal * 100).toFixed(0) + 'p',
         extMarginalNote:'of the next pound out reaches your account',
-        heatNote:'Pension is not spendable now — it is tax-free on the way in but locked until 57.',
+        heatNote:'Pension is not spendable now — normally locked until 55, rising to 57 from 6 April 2028.',
         flowSubtitle:f0(s.revenue) + ' of revenue splits into ' + f0(m.net) + ' for you, ' + f0(hmrcTotal) + ' for HMRC, ' + f0(Math.max(m.retained, 0)) + ' retained.',
-        periodLabel:'Accounting period 1 ' + MN[startM] + ' – ' + endDay + ' ' + MN[endM],
+        periodLabel:'Accounting period 1 ' + MN[startM] + ' ' + startYear + ' – ' + endDay + ' ' + MN[endM] + ' ' + endY,
         periodSelect:`appearance:none;-webkit-appearance:none;border:1px solid ${P.ink};background:transparent;color:${P.ink};font:500 12.5px ${SANS};padding:7px 11px;width:100%;border-radius:0;cursor:pointer`,
-        periodNote:'Your year ends ' + endDay + ' ' + MFULL[endM] + ', so the cash calendar runs 1 ' + MFULL[startM] + ' ' + startYear + ' to ' + endDay + ' ' + MFULL[endM] + ' ' + yearOf(11) + '. Corporation tax then falls due 1 ' + MFULL[(endM + 10) % 12] + '.',
-        timelineSubtitle:'Company year 1 ' + MN[startM] + ' ' + startYear + ' – ' + endDay + ' ' + MN[endM] + ' ' + yearOf(11) + '. Salary and dividends drawn evenly; HMRC payments land on their statutory dates.',
-        assumeTimingIntro:'The accounting period modelled here runs 1 ' + MFULL[startM] + ' to ' + endDay + ' ' + MFULL[endM] + ', so company deadlines sit ' + (endM === 2 ? 'close to' : 'off') + ' the tax year.',
-        assumeCTDue:'Corporation tax — 1 ' + MFULL[(endM + 10) % 12],
-        assumeCTDueNote:'Nine months and one day after the ' + endDay + ' ' + MFULL[endM] + ' period end',
-        assumeCT600:'CT600 and accounts — ' + endDay + ' ' + MFULL[endM],
-        assumeYearCash:'Rates come from the selected tax year; the calendar shows the 1 ' + MN[startM] + ' – ' + endDay + ' ' + MN[endM] + ' company year. A period straddling 6 April blends two rate sets in reality.',
+        periodNote:'Year ends ' + endDay + ' ' + MFULL[endM] + ' ' + endY + '. The cash bars show the following 12 months, when corporation tax is due on ' + this.fmtDate(ctDue) + '.',
+        timelineSubtitle:'HMRC cash in the 12 months after the period end (1 ' + MN[startM] + ' ' + yearOf(0) + ' – ' + endDay + ' ' + MN[endM] + ' ' + yearOf(11) + '). PAYE in the bars is the following year at the same salary. The list below is the statutory dates for ' + st.year + '.',
+        assumeTimingIntro:'The accounting period modelled here runs 1 ' + MFULL[startM] + ' ' + startYear + ' to ' + endDay + ' ' + MFULL[endM] + ' ' + endY + ', so company deadlines sit ' + (endM === 2 ? 'close to' : 'off') + ' the tax year.',
+        assumeCTDue:'Corporation tax — ' + this.fmtDate(ctDue),
+        assumeCTDueNote:'Nine months and one day after the ' + endDay + ' ' + MFULL[endM] + ' ' + endY + ' period end',
+        assumeCH:'Companies House accounts — ' + this.fmtDate(chDue),
+        assumeCT600:'CT600 — ' + this.fmtDate(ct600Due),
+        assumePayeFreq: payeQuarterly ? 'PAYE and NI — quarterly, 22nd' : 'PAYE and NI — monthly, 22nd',
+        assumePayeNote: payeQuarterly
+          ? 'Quarterly while average monthly PAYE/NIC is under £1,500'
+          : 'Monthly because average PAYE/NIC is £1,500 or more. Quarterly payment needs HMRC agreement.',
+        assumeYearCash:'Rates come from the selected tax year. The bars show the 12 months after the period end so corporation tax and the January self assessment appear. A period straddling 6 April blends two personal rate sets in reality.',
         warnStyle: (shortfall || infeasible) ? 'margin-top:18px;padding:12px 13px;background:#3A2620;color:#EBB79E;font-size:12px;line-height:1.5;border-left:3px solid ' + C.hmrc : 'display:none',
         warnText: shortfall ? 'Dividends exceed distributable reserves — that would be an unlawful distribution. Cut the dividend or the target.' : infeasible ? 'This target needs more revenue, lower expenses, or a smaller pension contribution. Best achievable is ' + f0(m.net) + '.' : ''
       }
