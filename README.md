@@ -10,6 +10,8 @@ Open `UK Company Tax Calculator.dc.html` in a browser to run it locally. No buil
 
 Use **Request a feature** on the site. Each request opens a GitHub issue with the `feature-request` label, so it is tracked in this repo and emailed to you if you [watch issues](https://github.com/ImpactInvest/uk-corporate-tax-calculator/subscription) on the repository.
 
+Requesters can cancel before sending, or withdraw a filed request by closing the GitHub issue.
+
 ## What it does
 
 **Model** — Set revenue, expenses, employer pension, other personal income and a Plan 2 student loan toggle, then either solve for a target net take-home or fix the salary and dividends yourself. Outputs corporation tax, employer and employee NI, income tax, dividend tax and student loan, with a Sankey flow, a waterfall, bucket breakdowns and a payment calendar.

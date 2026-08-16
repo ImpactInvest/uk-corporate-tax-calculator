@@ -16,9 +16,12 @@
   .fr-dialog input,.fr-dialog textarea{border:1px solid #1F1D1A;background:#F6F1E8;color:#1F1D1A;font:400 14px Jost,system-ui,sans-serif;padding:9px 11px;border-radius:0;width:100%;box-sizing:border-box}
   .fr-dialog textarea{min-height:110px;resize:vertical}
   .fr-dialog input:focus,.fr-dialog textarea:focus{outline:2px solid rgba(62,107,82,.4);outline-offset:1px}
-  .fr-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
+  .fr-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px;flex-wrap:wrap}
   .fr-actions button{appearance:none;border:1px solid #1F1D1A;background:transparent;color:#1F1D1A;font:500 13px Jost,system-ui,sans-serif;padding:8px 14px;cursor:pointer}
-  .fr-actions button[value="submit"]{background:#1F1D1A;color:#F6F1E8}
+  .fr-actions button[type="submit"],.fr-actions .fr-primary{background:#1F1D1A;color:#F6F1E8}
+  .fr-dialog [hidden]{display:none !important}
+  .fr-dialog .fr-sent-actions{justify-content:space-between;align-items:center}
+  .fr-dialog .fr-cancel-link{font:500 13px Jost,system-ui,sans-serif;color:#BE5236;border-bottom:1px solid rgba(190,82,54,.32);text-decoration:none}
 </style>
 <script src="./support.js"></script>
 </head>
@@ -51,9 +54,9 @@
   .fr-dialog input,.fr-dialog textarea{border:1px solid #1F1D1A;background:#F6F1E8;color:#1F1D1A;font:400 14px Jost,system-ui,sans-serif;padding:9px 11px;border-radius:0;width:100%;box-sizing:border-box}
   .fr-dialog textarea{min-height:110px;resize:vertical}
   .fr-dialog input:focus,.fr-dialog textarea:focus{outline:2px solid rgba(62,107,82,.4);outline-offset:1px}
-  .fr-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px}
+  .fr-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:4px;flex-wrap:wrap}
   .fr-actions button{appearance:none;border:1px solid #1F1D1A;background:transparent;color:#1F1D1A;font:500 13px Jost,system-ui,sans-serif;padding:8px 14px;cursor:pointer}
-  .fr-actions button[value="submit"]{background:#1F1D1A;color:#F6F1E8}
+  .fr-actions button[type="submit"],.fr-actions .fr-primary{background:#1F1D1A;color:#F6F1E8}
 </style>
 </helmet>
 <div style="min-width:1020px;max-width:1780px;margin:0 auto;padding:clamp(20px,2.2vw,34px) clamp(18px,2.4vw,40px) 56px">
@@ -1688,24 +1691,35 @@ class Component extends DCLogic {
 </script>
 <button type="button" class="fr-open fr-open-fixed">Request a feature</button>
 <dialog class="fr-dialog" id="fr-dialog" aria-labelledby="fr-title">
-  <form id="fr-form" method="dialog">
-    <h2 id="fr-title">Request a feature</h2>
-    <p>Describe what you want added. This opens a GitHub issue so it is tracked and emailed to the maintainer. You will need to be signed in to GitHub to send it.</p>
-    <label>
-      <span>Title</span>
-      <input name="title" type="text" required maxlength="120" placeholder="e.g. Model employment allowance">
-    </label>
-    <label>
-      <span>Details</span>
-      <textarea name="details" required maxlength="4000" placeholder="What should change, and why it would help."></textarea>
-    </label>
-    <label>
-      <span>Your email (optional)</span>
-      <input name="email" type="email" maxlength="120" placeholder="If you want a reply">
-    </label>
-    <div class="fr-actions">
-      <button value="cancel">Cancel</button>
-      <button value="submit">Open GitHub issue</button>
+  <form id="fr-form">
+    <div id="fr-compose">
+      <h2 id="fr-title">Request a feature</h2>
+      <p>Describe what you want added. This opens a GitHub issue so it is tracked and emailed to the maintainer. You can cancel at any time — before sending, or by closing the GitHub issue afterwards.</p>
+      <label>
+        <span>Title</span>
+        <input name="title" type="text" required maxlength="120" placeholder="e.g. Model employment allowance">
+      </label>
+      <label>
+        <span>Details</span>
+        <textarea name="details" required maxlength="4000" placeholder="What should change, and why it would help."></textarea>
+      </label>
+      <label>
+        <span>Your email (optional)</span>
+        <input name="email" type="email" maxlength="120" placeholder="If you want a reply">
+      </label>
+      <div class="fr-actions">
+        <button type="button" id="fr-cancel">Cancel</button>
+        <button type="submit">Open GitHub issue</button>
+      </div>
+    </div>
+    <div id="fr-sent" hidden>
+      <h2 id="fr-sent-title">Cancel if you change your mind</h2>
+      <p>A GitHub issue draft is open in another tab. Nothing is filed until you click <strong>Submit new issue</strong> there.</p>
+      <p>To cancel: close that tab without submitting. If you already submitted, close the issue — that withdraws the request from the tracker.</p>
+      <div class="fr-actions fr-sent-actions">
+        <a class="fr-cancel-link" id="fr-withdraw" href="https://github.com/ImpactInvest/uk-corporate-tax-calculator/issues?q=is%3Aopen+is%3Aissue+author%3A%40me" target="_blank" rel="noopener">Cancel a filed request</a>
+        <button type="button" class="fr-primary" id="fr-done">Done</button>
+      </div>
     </div>
   </form>
 </dialog>
@@ -1713,9 +1727,24 @@ class Component extends DCLogic {
 (function () {
   var dialog = document.getElementById('fr-dialog');
   var form = document.getElementById('fr-form');
+  var compose = document.getElementById('fr-compose');
+  var sent = document.getElementById('fr-sent');
   var repo = 'https://github.com/ImpactInvest/uk-corporate-tax-calculator/issues/new';
   function isOpenButton(node) {
     return !!(node && node.classList && node.classList.contains('fr-open'));
+  }
+  function showCompose() {
+    sent.hidden = true;
+    compose.hidden = false;
+  }
+  function showSent() {
+    compose.hidden = true;
+    sent.hidden = false;
+  }
+  function cancelRequest() {
+    form.reset();
+    showCompose();
+    dialog.close();
   }
   document.addEventListener('click', function (event) {
     var path = event.composedPath ? event.composedPath() : [];
@@ -1727,10 +1756,19 @@ class Component extends DCLogic {
     }
     if (!hit) return;
     event.preventDefault();
+    showCompose();
     if (typeof dialog.showModal === 'function') dialog.showModal();
   });
+  dialog.addEventListener('click', function (event) {
+    if (event.target === dialog) cancelRequest();
+  });
+  dialog.addEventListener('cancel', function () {
+    form.reset();
+    showCompose();
+  });
+  document.getElementById('fr-cancel').addEventListener('click', cancelRequest);
+  document.getElementById('fr-done').addEventListener('click', cancelRequest);
   form.addEventListener('submit', function (event) {
-    if (event.submitter && event.submitter.value === 'cancel') return;
     event.preventDefault();
     var title = (form.title.value || '').trim();
     var details = (form.details.value || '').trim();
@@ -1738,11 +1776,10 @@ class Component extends DCLogic {
     if (!title || !details) return;
     var body = '## Feature request\n\n' + details;
     if (email) body += '\n\n**Contact:** ' + email;
-    body += '\n\n---\nSubmitted from the UK Company Tax Calculator.';
+    body += '\n\n---\nSubmitted from the UK Company Tax Calculator.\nTo cancel this request, close the issue.';
     var url = repo + '?labels=feature-request&title=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(body);
     window.open(url, '_blank', 'noopener');
-    dialog.close();
-    form.reset();
+    showSent();
   });
 })();
 </script>
