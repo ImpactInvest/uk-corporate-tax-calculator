@@ -43,6 +43,10 @@
   ::selection{background:#D8CBB4}
   .fr-open{margin-left:auto;padding:15px 0 13px;border:0;border-bottom:3px solid transparent;background:transparent;color:#BE5236;font:500 14px Jost,system-ui,sans-serif;letter-spacing:.005em;cursor:pointer}
   .fr-open:hover{border-bottom-color:#BE5236}
+  .site-disclaimer{margin-top:40px;padding:22px 0 8px;border-top:1px solid #1F1D1A}
+  .site-disclaimer h2{margin:0 0 10px;font:400 10px/1.4 'IBM Plex Mono',monospace;letter-spacing:.17em;text-transform:uppercase;color:#8A8175}
+  .site-disclaimer p{margin:0 0 10px;max-width:88ch;font-size:12.5px;line-height:1.65;color:#6E665C}
+  .site-disclaimer p:last-child{margin-bottom:0}
   .fr-open-fixed{position:fixed;right:clamp(16px,2vw,32px);bottom:22px;z-index:40;margin:0;padding:10px 14px;border:1px solid #1F1D1A;border-bottom:1px solid #1F1D1A;background:#F6F1E8;color:#1F1D1A;font:500 13px Jost,system-ui,sans-serif;letter-spacing:.01em;box-shadow:4px 4px 0 #1F1D1A}
   .fr-dialog{padding:0;border:1px solid #1F1D1A;background:#F6F1E8;color:#1F1D1A;max-width:440px;width:calc(100vw - 32px);box-shadow:none}
   .fr-dialog::backdrop{background:rgba(31,29,26,.46)}
@@ -59,7 +63,7 @@
   .fr-actions button[type="submit"],.fr-actions .fr-primary{background:#1F1D1A;color:#F6F1E8}
 </style>
 </helmet>
-<div style="min-width:1020px;max-width:1780px;margin:0 auto;padding:clamp(20px,2.2vw,34px) clamp(18px,2.4vw,40px) 56px">
+<div style="min-width:1020px;max-width:1780px;margin:0 auto;padding:clamp(20px,2.2vw,34px) clamp(18px,2.4vw,40px) 96px">
 
   <header style="margin-bottom:26px">
     <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:28px;flex-wrap:wrap">
@@ -446,8 +450,6 @@
         </sc-for>
         <div style="font-size:11.5px;color:#A79683;margin-top:12px;line-height:1.5">{{ v.scenNote }}</div>
       </section>
-
-      <p style="margin:0;font-size:11px;color:#A79683;line-height:1.6">Planning model, not tax advice. Rates as noted per year; check figures with your accountant before filing or declaring a dividend.</p>
     </div>
   </div>
   </sc-if>
@@ -870,10 +872,16 @@
         <div><a href="https://www.icaew.com/insights/tax-news/2025/nov-2025/budget-taxes-on-property-savings-and-dividends-increased" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">ICAEW &mdash; Budget: taxes on dividends increased</a></div>
         <div><a href="https://taxscape.deloitte.com/measures-autumn-budget-2025/dividend--savings-and-property-income-tax-rate-increases.aspx" target="_blank" rel="noopener" style="color:#9FC3AC;border-bottom-color:rgba(159,195,172,.3)">Deloitte Taxscape &mdash; Autumn Budget 2025 measure</a></div>
       </div>
-      <p style="margin:24px 0 0;font-size:11.5px;color:#7A7268;line-height:1.6">A planning model, not tax advice. Rates change, and the treatment of a specific transaction can differ. Confirm with your accountant before declaring a dividend or filing.</p>
     </section>
   </div>
   </sc-if>
+
+  <footer class="site-disclaimer">
+    <h2>Disclaimer</h2>
+    <p>This website is a planning tool provided for general information only. It does not constitute tax advice, legal advice, accounting advice or any other professional advice, and it is not a substitute for advice from a suitably qualified professional who understands your circumstances.</p>
+    <p>You should not rely on this website, or take or refrain from taking any action on the basis of it, without first consulting your own tax adviser, accountant or solicitor. Tax law, HMRC practice and rates change. This model uses simplifying assumptions that may not apply to you, and the figures shown are illustrative &mdash; they may be incomplete or out of date.</p>
+    <p>Use of this website does not create a client, advisory or professional relationship. To the fullest extent permitted by law, no liability is accepted for any loss or damage arising from use of, or reliance on, this website or its calculations.</p>
+  </footer>
 </div>
 
 </x-dc>
