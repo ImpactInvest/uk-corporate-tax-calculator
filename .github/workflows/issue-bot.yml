@@ -81,7 +81,7 @@ jobs:
           gh issue comment "${{ steps.issue.outputs.number }}" --repo "${{ github.repository }}" --body "$(cat <<'EOF'
           Thanks — this is queued for the calculator bot.
 
-          A bot will triage it and open a pull request if it is a concrete code change. **Pull requests are never auto-merged.** Someone still has to review and merge.
+          A bot will triage it and open a pull request against `dev` if it is a concrete code change. **Pull requests are never auto-merged.** Review into `dev`, then merge `dev` into `main` when you want a deploy.
 
           Add the `bot-skip` label before filing if you want a human-only issue.
           EOF
