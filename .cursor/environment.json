@@ -1,10 +1,10 @@
 {
-  "name": "UK Company Tax Calculator",
+  "name": "Sole Trader Income Calculator",
   "terminals": [
     {
       "name": "static-server",
       "command": "python3 -m http.server 8000",
-      "description": "Serves the static site at http://localhost:8000. Open the calculator at http://localhost:8000/UK%20Company%20Tax%20Calculator.dc.html (or / which redirects there via index.html)."
+      "description": "Serves the static site at http://localhost:8000. Open the calculator at http://localhost:8000/Sole%20Trader%20Income%20Calculator.dc.html (or / which redirects there via index.html)."
     }
   ],
   "ports": [

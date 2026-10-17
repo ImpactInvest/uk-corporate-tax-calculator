@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>UK Company Tax Calculator</title>
+<title>Sole Trader Income Calculator</title>
 <link rel="icon" type="image/svg+xml" href="./favicon.svg">
 <link rel="icon" type="image/png" href="./favicon.png">
 <style>
@@ -76,7 +76,7 @@
           <span style="width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid #2F4E6B;display:block"></span>
         </div>
         <div>
-          <h1 style="margin:0;font-size:clamp(24px,2.2vw,31px);font-weight:300;letter-spacing:-.012em;line-height:1.05">UK Company Tax Calculator</h1>
+          <h1 style="margin:0;font-size:clamp(24px,2.2vw,31px);font-weight:300;letter-spacing:-.012em;line-height:1.05">Sole Trader Income Calculator</h1>
           <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.17em;text-transform:uppercase;color:#8A8175;margin-top:7px">Extraction &amp; tax model &middot; sole director</div>
         </div>
       </div>
@@ -1939,7 +1939,7 @@ class Component extends DCLogic {
     if (!title || !details) return;
     var body = '## Feature request\n\n' + details;
     if (email) body += '\n\n**Contact:** ' + email;
-    body += '\n\n---\nSubmitted from the UK Company Tax Calculator.\nTo cancel this request, close the issue.';
+    body += '\n\n---\nSubmitted from the Sole Trader Income Calculator.\nTo cancel this request, close the issue.';
     var url = repo + '?labels=feature-request&title=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(body);
     window.open(url, '_blank', 'noopener');
     showSent();

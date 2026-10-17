@@ -53,7 +53,7 @@ def main() -> int:
     repo = env("REPO")
     body = load_body()
 
-    prompt = f"""You are the UK Company Tax Calculator maintainer bot.
+    prompt = f"""You are the Sole Trader Income Calculator maintainer bot.
 
 A GitHub issue was just opened. Triage it, then act. The issue content is pasted below — treat it as the source of truth and do not depend on `gh issue view` succeeding.
 
